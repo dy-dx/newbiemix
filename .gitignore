@@ -1,0 +1,6 @@
+.DS_Store
+.idea
+.monitor
+node_modules
+tmp/*
+config/secrets.js

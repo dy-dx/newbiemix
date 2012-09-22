@@ -1,0 +1,10 @@
+{
+  "name": "express2xtest",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "2.5.11",
+    "jade": ">= 0.0.1",
+    "socket.io": "0.9.x"
+  }
+}
