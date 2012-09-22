@@ -4,8 +4,8 @@ html
     meta( charset='utf-8' )
     title= title
     link(rel='stylesheet', href='/stylesheets/style.css')
-  body!= body
-    #container
+  body
+    #container!= body
     script( src='/socket.io/socket.io.js' )
     script( src='/javascripts/vendor/jquery-1.8.2.min.js' )
     script( src='/javascripts/tf.js' )
