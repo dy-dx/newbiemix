@@ -60,7 +60,7 @@ var tf = {};
     this.ready = options.ready;
 
     this.div = $('<div class="sprite">').addClass(this.name);
-    this.img = $('<img>', { src: '/images/sprites/' + this.name + 'png' })
+    this.img = $('<img>', { src: '/images/sprites/' + this.name + '.png' })
       .load(function() {
         self.size = new tf.Vector(this.width, this.height);
         self.draw();
@@ -276,5 +276,311 @@ var tf = {};
   tf.Player.prototype.near = function near(pos) {
     return this.pos.minus(pos).length() < 150;
   };
+
+
+
+  ////// Let's Begin //////
+  $(function() {
+    // Choose a random sprite
+    var types = [ 'suit', 'littleguy', 'beast', 'gifter', 'flannel' ];
+    var me = tf.me = new tf.Player({
+      name: types[Math.floor(types.length * Math.random())],
+      pos: new tf.Vector(-100, -100),
+      ready: function() {
+        this.speak('type to chat. click to move around.');
+        speakTimeout = setTimeout(function() { me.speak(''); }, 5000);
+      }
+    });
+
+    // Random sprite placement
+    $(window).load(function() {
+      var el = $(location.hash);
+      if (el.length === 0) el = $('body');
+      tf.warpTo(el);
+    });
+
+    ////// Networking //////
+    var players = tf.players = {};
+    var ws = tf.ws = io.connect(null, {
+      // 'port': '#socketIoPort#'
+      'port': 8003
+    });
+    ws.on('connect', function() {
+      me.id = ws.socket.sessionid;
+      tf.players[me.id] = me;
+      (function heartbeat() {
+        tf.send({ obj: me }, true);
+        setTimeout(heartbeat, 5000);
+      })();
+    });
+    ws.on('message', function(data) {
+      var player = players[data.id];
+
+      if (data.disconnect && player) {
+        player.remove();
+        delete players[data.id];
+      }
+
+      if (data.obj && !player && data.obj.pos.x < 10000 && data.obj.pos.y < 10000)
+        player = players[data.id] = new tf.Player(_.extend(data.obj, { id: data.id })).draw();
+
+      if (player && data.method) {
+        player.origin = data.obj.origin;
+        var arguments = _.map(data.arguments, function(obj) {
+          return obj.id ? tf.players[obj.id] : obj;
+        });
+        tf.Player.prototype[data.method].apply(player, arguments);
+      }
+    });
+    tf.near = function near(pos) {
+      return _.find(tf.players, function(player) {
+        return player !== me && player.near(pos);
+      });
+    };
+
+
+    ////// Helper Methods //////
+    randomPositionOn = function(selector) {
+      var page = $(selector);
+      var pos = page.position();
+
+      return new tf.Vector(pos.left + 20 + Math.random() * (page.width()-40),
+                            pos.top + 20 + Math.random() * (page.height()-40));
+    };
+
+    tf.warpTo = function (selector) {
+      var page = $(selector);
+      var pos = page.position();
+
+      pos = randomPositionOn(page);
+
+      me.warp(pos);
+      tf.send({
+        obj: me,
+        method: 'warp',
+        arguments: [ pos ]
+      });
+    };
+
+    tf.goTo = function(selector) {
+      var page = $(selector);
+      if (page.length === 0) return;
+
+      var $window = ($window);
+      var pos = page.offset();
+      var left = pos.left - ($window.width() - page.width()) / 2;
+      var top = pos.top - ($window.height() - page.height()) / 2;
+
+      $('body')
+        .stop()
+        .animate({ scrollLeft: left, scrollTop: top }, 1000);
+
+      pos = randomPositionOn(page);
+
+      me.goTo(pos);
+      tf.send({
+        obj: me,
+        method: 'goTo',
+        arguments: [ pos ]
+      });
+
+      page.click();
+    };
+
+    tf.send = function(data, heartbeat) {
+      if (!ws) return;
+      
+      var now = Date.now();
+      if (now - ws.lastSentAt < 10) return; //throw Error('throttled');
+      ws.lastSentAt = now;
+
+      if (!heartbeat || ws.lastActionAt)
+        ws.json.send(data);
+
+      // Disconnect after 15 minutes of idling; refresh after 2 hours
+      if (now - ws.lastActionAt > 900000) ws.disconnect();
+      if (now - ws.lastActionAt > 7200000) location.reload();
+      if (!heartbeat) ws.lastActionAt = now;
+    };
+
+
+    ////// Event Listeners //////
+    // enter watchmaker land
+    // $('.thing.streetlamp').live('click touchend', function() {
+    //   $('#inner').fadeToggle()
+    // });
+
+    ////// Movement //////
+    $(window)
+      .resize(_.debounce(function() { me.resetOrigin(); }, 300))
+      .click(function(e) { // move on click
+        if (e.pageX === undefined || e.pageY === undefined) return;
+        var pos = { x: e.pageX, y: e.pageY };
+        var other = tf.near(pos);
+
+        me.goTo(pos, function() {
+          // if (other && me.near(other.pos)) {
+          //   me.hug(other);
+          //   tf.send({
+          //     obj: me,
+          //     method: 'hug',
+          //     arguments: [ other ]
+          //   });
+          // }
+        });
+        tf.send({
+          obj: me,
+          method: 'goTo',
+          arguments: [ pos ]
+        });
+      })
+      .keydown(function(e) {
+        if ($(e.target).is(':input')) return true;
+        if (e.altKey) return true;
+        var d = (function() {
+          switch (e.keyCode) {
+            case 37: // left
+              return new tf.Vector(-5000, 0);
+            case 38: // up
+              return new tf.Vector(0, -5000);
+            case 39: // right
+              return new tf.Vector(+5000, 0);
+            case 40: // down
+              return new tf.Vector(0, +5000);
+          }
+        })();
+        if (d) {
+          if (me.keyNav) return false;
+          var pos = me.getPosition().plus(d);
+          me.goTo(pos);
+          tf.send({
+            obj: me,
+            method: 'goTo',
+            arguments: [ pos ]
+          });
+          me.keyNav = true;
+          return false;
+        }
+      })
+      .keyup(function(e) {
+        if ($(e.target).is(':input')) return true;
+        if (e.altKey) return true;
+        switch (e.keyCode) {
+          case 37: // left
+          case 38: // up
+          case 39: // right
+          case 40: // down
+            me.goTo(me.getPosition(), 1);
+            tf.send({
+              obj: me,
+              method: 'goTo',
+              arguments: [ me.getPosition(), 1 ]
+            });
+            me.keyNav = false;
+            return false;
+        }
+      });
+
+    // ios
+    // var moved = false;
+    // $('body')
+    //   .bind('touchmove', function(e) { moved = true; })
+    //   .bind('touchend', function(e) { // move on touch
+    //     if (moved) return moved = false;
+    //     var t = e.originalEvent.changedTouches.item(0);
+    //     me.goTo(new tf.Vector(t.pageX, t.pageY));
+    //   })
+    //   .on('click', '.slide', function() {
+    //     var $this = $(this);
+    //     var id = $(this).attr('id');
+    //     $this.removeAttr('id');
+    //     location.hash = '#' + id;
+    //     $this.attr('id', id);
+    //   });
+
+    // chat
+    var speakTimeout, $text = $('<textarea>')
+      .appendTo($('<div class="textarea-container">')
+      .appendTo(me.div))
+      .bind('keyup', function(e) {
+        var text = $text.val();
+        switch (e.keyCode) {
+          case 13:
+            $text.val('');
+            return false;
+          default:
+            me.speak(text);
+            tf.send({
+              obj: me,
+              method: 'speak',
+              arguments: [ text ]
+            });
+            clearTimeout(speakTimeout);
+            speakTimeout = setTimeout(function() {
+              $text.val('');
+              me.speak();
+              tf.send({
+                obj: me,
+                method: 'speak'
+              });
+            }, 5000);
+        }
+      }).focus();
+    $(document).keylisten(function(e) {
+      var slide = Number(location.hash.replace('#slide-', ''));
+      switch (e.keyName) {
+        case 'alt+right':
+          return tf.goTo('#slide-' + (slide+1));
+        case 'alt+left':
+          return tf.goTo('#slide-' + (slide-1));
+      }
+
+      if (e.altKey || e.ctrlKey || e.metaKey) return true;
+      switch (e.keyName) {
+        case 'meta':
+        case 'meta+ctrl':
+        case 'ctrl':
+        case 'alt':
+        case 'shift':
+        case 'up':
+        case 'down':
+        case 'left':
+        case 'right':
+          return;
+        default:
+          $text.focus()
+      }
+    });
+
+
+    //// flare
+    tf.map = function map(map) {
+      $.each(map, function() {
+        for (var name in this)
+          new tf.Sprite({ name: name, pos: new tf.Vector(this[name]) });
+      });
+    };
+    tf.map([
+      { 'streetlamp': [  -10, 160  ] },
+      { 'livetree':   [  -80, 120  ] },
+      { 'livetree':   [  580, 80   ] },
+      { 'livetree':   [ 1000, 380  ] },
+      { 'deadtree':   [ 1050, 420  ] },
+
+      //// lounge
+      { 'livetree':   [  -60, 870  ] },
+      { 'deadtree':   [    0, 900  ] },
+      { 'portopotty': [   80, 900  ] },
+      { 'livetree':   [  550, 1050 ] },
+      { 'livetree':   [  500, 1250 ] },
+      { 'deadtree':   [  560, 1300 ] },
+      { 'desk':       [  500, 1350 ] },
+      { 'livetree':   [  120, 1800 ] },
+      { 'deadtree':   [   70, 1700 ] },
+      { 'livetree':   [  -10, 1900 ] }
+    ]);
+
+
+  });
 
 })(tf);

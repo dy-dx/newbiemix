@@ -1,8 +1,49 @@
 body {
-  padding: 50px;
+  text-align: center;
+  background: #c7ced1 url("/images/noise.png") repeat;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  min-width: 960px;
+  text-shadow: 0px 1px 0px rgba(255,255,255,0.6);
+  overflow: scroll;
+  -webkit-transform: translate3d(0, 0, 0);
 }
-
 a {
-  color: #00B7FF;
+  color: #00b7ff;
+}
+#container {
+  position: relative;
+  width: 900px;
+  margin: 30px auto 0;
+  text-align: left;
+}
+.sprite {
+  position: absolute;
+}
+.sprite .bubble {
+  position: absolute;
+  left: -15px;
+  width: 253px;
+  max-height: 70px;
+  border-width: 21px 20px 42px 21px;
+  padding: 5px;
+  display: none;
+  text-align: center;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 125%;
+}
+.sprite ::-webkit-scrollbar {
+  width: 1ex;
+}
+.sprite ::-webkit-scrollbar-thumb:vertical {
+  background-color: rgba(0,0,0,0.2);
+}
+.sprite .textarea-container {
+  overflow: hidden;
+  position: relative;
+}
+.sprite .textarea-container textarea {
+  position: absolute;
+  left: -100px;
+  width: 80px;
 }
