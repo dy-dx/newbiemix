@@ -1,40 +1,10 @@
-border-image()
-  -webkit-border-image arguments
-  -moz-border-image arguments
-  border-image arguments
-
-border-radius()
-  -webkit-border-radius arguments
-  -moz-border-radius arguments
-  border-radius arguments
-
-box-shadow()
-  -webkit-box-shadow arguments
-  -moz-box-shadow arguments
-  box-shadow arguments
-
-transition()
-  -webkit-transition arguments
-  -moz-transition arguments
-  transition arguments
-
-inverted()
-  padding 9px 13px 5px 23px
-  color white
-  background hsl(0, 0%, 20%)
-  background-color hsla(0, 0%, 0%, 0.8)
-  border solid 1px hsla(0, 0%, 0%, 0.2)
-  text-shadow 0px -1px 0px hsla(0, 0%, 0%, 0.5)
-  box-shadow 0 1px 3px hsla(0, 0%, 0%, 0.5)
-
 body
   text-align center
-  background hsl(200, 10%, 80%) url('/images/noise.png') repeat
+  // background hsl(200, 10%, 80%) url('/images/noise.png') repeat
   font 14px "Lucida Grande", Helvetica, Arial, sans-serif
   min-width 960px
   text-shadow 0px 1px 0px hsla(0, 100%, 100%, 0.6)
   overflow scroll
-  -webkit-transform translate3d(0,0,0)
 
 a
   color #00B7FF
@@ -44,6 +14,8 @@ a
   width 900px
   margin 30px auto 0
   text-align left
+  // -webkit-perspective 1000
+  -webkit-backface-visibility hidden
 
 .sprite
   position absolute
@@ -56,7 +28,7 @@ a
     border-width 21px 20px 42px 21px
     padding 5px
     display none
-    text-align center
+    // text-align center
     overflow-y auto
     white-space pre-wrap
     line-height 125%

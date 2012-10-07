@@ -41,10 +41,11 @@ var tf = {};
     },
 
     cardinalDirection: function() {
-      if (Math.abs(this.x) > Math.abs(this.y))
+      // Gang Garrison sprites are only east or west!
+      // if (Math.abs(this.x) > Math.abs(this.y))
         return this.x < 0 ? 'w' : 'e';
-      else
-        return this.y < 0 ? 'n' : 's';
+      // else
+      //   return this.y < 0 ? 'n' : 's';
     }
   };
 
@@ -95,21 +96,23 @@ var tf = {};
         height: this.size.y,
         'z-index': Math.floor(this.pos.y),
         // transform: Modernizr.csstransforms ? 'translate(' + offset.toString() + ')' : null,
+
         transform: 'translate(' + offset.toString() + ')',
-        background: 'url(' + this.img.attr('src') + ')' 
+        background: 'url(' + this.img.attr('src') + ')'
       })
       .appendTo($('#container'));
     this.resetOrigin();
     // What is this???
     if (this.ready) this.ready();
 
-    this.animate();
+// This does nothing:
+    // this.animate();
 
     return this;
   };
 
   // What is this???
-  tf.Sprite.prototype.animate = function() {};
+  // tf.Sprite.prototype.animate = function() {};
 
   tf.Sprite.prototype.remove = function() {
     this.div.fadeOut(function() { $(this).remove(); });
@@ -130,15 +133,18 @@ var tf = {};
 
   tf.IdleSprite.prototype.draw = function() {
     // Probably have to change this stuff
-    this.frames = this.size.x / 80;
-    this.size.x = 80;
+    // this.frames = this.size.x / 80;
+    // this.size.x = 80;
+    // 64px per frame now
+    this.frames = this.size.x / 64;
+    this.size.x = 64;
 
     if (this.cycles) this.cycles *= this.frames;
 
     return tf.Sprite.prototype.draw.call(this);
   };
 
-  tf.IdleSprite.prototype.animate = function(state) {
+  tf.IdleSprite.prototype.animateFrames = function(state) {
     var self = this;
 
     clearTimeout(this.animateTimeout);
@@ -147,7 +153,7 @@ var tf = {};
     this.div.css('background-position', (-this.frame * this.size.x) + 'px 0px');
 
     if (!this.cycles || ++this.cycle < this.cycles)
-      this.animateTimeout = setTimeout(function() { self.animate(); }, 400);
+      this.animateTimeout = setTimeout(function() { self.animateFrames(); }, 400);
     else
       $(this.div).remove();
   };
@@ -174,19 +180,23 @@ var tf = {};
   };
 
   tf.Player.prototype.draw = function() {
-    this.idleFrames = (this.size.x - 640) / 80;
-    this.size.x = 80;
+    // this.idleFrames = (this.size.x - 640) / 80;
+    // this.size.x = 80;
+    // Idle Frames start at frame 6
+    this.idleFrames = (this.size.x - 320) / 64;
+    this.size.x = 64;
 
     this.bubble = $('<div class="bubble">')
-      .css('bottom', this.size.y + 10)
+      .css('bottom', this.size.y + 2)
       .appendTo(this.div);
 
     return tf.Sprite.prototype.draw.call(this);
   };
 
-  tf.Player.prototype.frameOffset = { w: 0, e: 2, s: 4, n: 6, idle: 8 };
+  // tf.Player.prototype.frameOffset = { w: 0, e: 2, s: 4, n: 6, idle: 8 };
+  tf.Player.prototype.frameOffset = { w: 0, e: 0, idle: 5 };
 
-  tf.Player.prototype.animate = function(state) {
+  tf.Player.prototype.animateFrames = function(state) {
     var self = this;
 
     clearTimeout(this.animateTimeout);
@@ -203,7 +213,7 @@ var tf = {};
         .addClass('frame-' + this.bubbleFrame);
     }
 
-    this.animateTimeout = setTimeout(function() { self.animate(); }, 400);
+    this.animateTimeout = setTimeout(function() { self.animateFrames(); }, 150);
   };
 
   tf.Player.prototype.goTo = function(pos, duration, callback) {
@@ -214,10 +224,16 @@ var tf = {};
 
     var self = this;
     var delta = pos.minus(this.pos);
-    // what the fuck is this?
-    var duration = duration !== undefined && typeof(duration) !== 'function' ? duration : delta.length() / 200 * 1000;
+    var speed = 0.25;
+    var duration = duration !== undefined && typeof(duration) !== 'function' ? duration : delta.length() / speed;
 
-    this.animate(delta.cardinalDirection());
+    this.animateFrames(delta.cardinalDirection());
+    var offset = new tf.Vector(this.size.x * -0.5, -this.size.y + 20);
+    this.div
+      .css({ //holy shit refactor this
+        transform: 'translate(' + offset.toString() + ') scale(' + (delta.cardinalDirection() === 'e' ? 1 : -1) + ', 1)'
+      });
+
     if (duration && duration > 0)
       this.div.stop();
     this.div
@@ -241,7 +257,7 @@ var tf = {};
         complete: function() {
           self.pos = pos;
           // z-index?
-          self.animate('idle');
+          self.animateFrames('idle');
           if (callback) callback();
         }
       });
@@ -282,7 +298,8 @@ var tf = {};
   ////// Let's Begin //////
   $(function() {
     // Choose a random sprite
-    var types = [ 'suit', 'littleguy', 'beast', 'gifter', 'flannel' ];
+    // var types = [ 'suit', 'littleguy', 'beast', 'gifter', 'flannel' ];
+    var types = [ 'scout-red', 'soldier-red', 'demoman-red', 'medic-red' ];
     var me = tf.me = new tf.Player({
       name: types[Math.floor(types.length * Math.random())],
       pos: new tf.Vector(-100, -100),
@@ -292,7 +309,7 @@ var tf = {};
       }
     });
 
-    // Random sprite placement
+    // Random sprite placement?? not really
     $(window).load(function() {
       var el = $(location.hash);
       if (el.length === 0) el = $('body');
@@ -344,15 +361,12 @@ var tf = {};
       var page = $(selector);
       var pos = page.position();
 
-      return new tf.Vector(pos.left + 20 + Math.random() * (page.width()-40),
-                            pos.top + 20 + Math.random() * (page.height()-40));
+      return new tf.Vector(pos.left + 0 + Math.random() * (page.width()-60),
+                            pos.top + 150 + Math.random() * (page.height()-60));
     };
 
     tf.warpTo = function (selector) {
-      var page = $(selector);
-      var pos = page.position();
-
-      pos = randomPositionOn(page);
+      var pos = randomPositionOn(selector);
 
       me.warp(pos);
       tf.send({
@@ -548,37 +562,37 @@ var tf = {};
         case 'right':
           return;
         default:
-          $text.focus()
+          $text.focus();
       }
     });
 
 
     //// flare
-    tf.map = function map(map) {
-      $.each(map, function() {
-        for (var name in this)
-          new tf.Sprite({ name: name, pos: new tf.Vector(this[name]) });
-      });
-    };
-    tf.map([
-      { 'streetlamp': [  -10, 160  ] },
-      { 'livetree':   [  -80, 120  ] },
-      { 'livetree':   [  580, 80   ] },
-      { 'livetree':   [ 1000, 380  ] },
-      { 'deadtree':   [ 1050, 420  ] },
+    // tf.map = function(map) {
+    //   $.each(map, function() {
+    //     for (var name in this)
+    //       new tf.Sprite({ name: name, pos: new tf.Vector(this[name]) });
+    //   });
+    // };
+    // tf.map([
+    //   { 'streetlamp': [  -10, 160  ] },
+    //   { 'livetree':   [  -80, 120  ] },
+    //   { 'livetree':   [  580, 80   ] },
+    //   { 'livetree':   [ 1000, 380  ] },
+    //   { 'deadtree':   [ 1050, 420  ] },
 
-      //// lounge
-      { 'livetree':   [  -60, 870  ] },
-      { 'deadtree':   [    0, 900  ] },
-      { 'portopotty': [   80, 900  ] },
-      { 'livetree':   [  550, 1050 ] },
-      { 'livetree':   [  500, 1250 ] },
-      { 'deadtree':   [  560, 1300 ] },
-      { 'desk':       [  500, 1350 ] },
-      { 'livetree':   [  120, 1800 ] },
-      { 'deadtree':   [   70, 1700 ] },
-      { 'livetree':   [  -10, 1900 ] }
-    ]);
+    //   //// lounge
+    //   { 'livetree':   [  -60, 870  ] },
+    //   { 'deadtree':   [    0, 900  ] },
+    //   { 'portopotty': [   80, 900  ] },
+    //   { 'livetree':   [  550, 1050 ] },
+    //   { 'livetree':   [  500, 1250 ] },
+    //   { 'deadtree':   [  560, 1300 ] },
+    //   { 'desk':       [  500, 1350 ] },
+    //   { 'livetree':   [  120, 1800 ] },
+    //   { 'deadtree':   [   70, 1700 ] },
+    //   { 'livetree':   [  -10, 1900 ] }
+    // ]);
 
 
   });

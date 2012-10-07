@@ -1,11 +1,9 @@
 body {
   text-align: center;
-  background: #c7ced1 url("/images/noise.png") repeat;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   min-width: 960px;
   text-shadow: 0px 1px 0px rgba(255,255,255,0.6);
   overflow: scroll;
-  -webkit-transform: translate3d(0, 0, 0);
 }
 a {
   color: #00b7ff;
@@ -15,6 +13,7 @@ a {
   width: 900px;
   margin: 30px auto 0;
   text-align: left;
+  -webkit-backface-visibility: hidden;
 }
 .sprite {
   position: absolute;
@@ -27,7 +26,6 @@ a {
   border-width: 21px 20px 42px 21px;
   padding: 5px;
   display: none;
-  text-align: center;
   overflow-y: auto;
   white-space: pre-wrap;
   line-height: 125%;

@@ -96,9 +96,7 @@ $.cssHooks[propertyName] = propertyHook = {
 		}
 
     if ( supportProperty ) {
-      // Force chrome to use GPU rendering to remove artifacts
-      elemStyle[supportProperty] = 'translate('+translate[0]+'px,'+translate[1]+'px) translate3d(0,0,0) rotate('+rotate+'rad) scale('+scale+')'+(skew?' skew('+skew[0]+'rad,'+skew[1]+'rad)' : '');
-			// elemStyle[supportProperty] = 'translate('+translate[0]+'px,'+translate[1]+'px) rotate('+rotate+'rad) scale('+scale+')'+(skew?' skew('+skew[0]+'rad,'+skew[1]+'rad)' : '');
+			elemStyle[supportProperty] = 'translate('+translate[0]+'px,'+translate[1]+'px) rotate('+rotate+'rad) scale('+scale+')'+(skew?' skew('+skew[0]+'rad,'+skew[1]+'rad)' : '');
 
 		} else if ( supportMatrixFilter ) {
 
