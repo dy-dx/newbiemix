@@ -1,7 +1,7 @@
 var env = module.exports = {
   node_env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT, 10) || 8003,
-  mongo_url: process.env.MONGOHQ_URL || 'mongodb://localhost/express2xtest'
+  mongo_url: process.env.MONGOHQ_URL || 'mongodb://localhost/newbiemix'
 };
 
 env.development = env.node_env === 'development';
@@ -24,6 +24,7 @@ if (env.development) {
 
   env.facebook_app_id = 'etc';
   env.secrets = {
+    steam: process.env.STEAM_API_KEY,
     facebook: process.env.FACEBOOK_OAUTH_SECRET,
     github: process.env.GITHUB_OAUTH_SECRET,
     twitter: process.env.TWITTER_OAUTH_SECRET,
