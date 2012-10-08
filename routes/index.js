@@ -4,7 +4,12 @@
  */
 
 exports.index = function(req, res) {
-  res.render('index');
+  console.log(req.loggedIn);
+  console.log(req.user);
+  res.render('index', {
+    loggedIn: req.loggedIn,
+    user: req.user
+  });
 };
 
 exports.partials = function (req, res) {

@@ -5,6 +5,11 @@ body {
   position: relative;
   -webkit-backface-visibility: hidden;
 }
+.add-up {
+  position: absolute;
+  left: 50%;
+  margin-left: -42px;
+}
 .sprite {
   position: absolute;
 }

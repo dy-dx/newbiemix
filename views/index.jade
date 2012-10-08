@@ -10,6 +10,25 @@ block body
             a(href='/') Home
           li(class='about', ng-class='{active:path()=="/about"}')
             a(href='/about') About
+        - if (loggedIn)
+          button.add-up.btn.btn-large.btn-success Add Up
+          .btn-group.pull-right
+            a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
+              span#profilename
+                img(src='#{user.avatar}')
+                | #{user.name}
+              span.caret
+            ul.dropdown-menu
+              li
+                a(href='#') Profile
+              li.divider
+              li
+                a(href='#') Sign Out
+        - else
+          .btn-group.pull-right
+            span#steamlogin
+              a(href='/auth/steam', target='_self')
+                img(src='/img/sits_small.png')
   #loading(ng-cloak, ng-show='loading')
     .alert
       | Loading...
