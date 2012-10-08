@@ -17,11 +17,14 @@ var app = module.exports = express.createServer();
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
+  app.set('view options', {
+    layout: false
+  });
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(require('stylus').middleware({ src: __dirname + '/public' }));
-  app.use(app.router);
   app.use(express.static(__dirname + '/public'));
+  app.use(app.router);
 });
 
 app.configure('development', function(){
@@ -35,27 +38,28 @@ app.configure('production', function(){
 // Routes
 
 app.get('/', routes.index);
+app.get('/partials/:name', routes.partials);
+
+// redirect all others to the index (HTML5 history)
+app.get('*', routes.index);
+
+
+// Hook Socket.io into Express
+
+app.io = require('socket.io').listen(app);
+app.io.enable('browser client minification');
+app.io.enable('browser client etag');
+app.io.enable('browser client gzip');
+app.io.set('log level', 1);
+app.io.set('transports', [
+  'websocket',
+  // 'flashsocket',
+  'htmlfile',
+  'xhr-polling',
+  'jsonp-polling'
+]);
+var socket = require('./routes/socket')(app);
 
 app.listen(port, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
-});
-app.ws = require('socket.io').listen(app);
-app.ws.set('log level', 1);
-app.ws.set('browser client minification', true);
-
-app.ws.sockets.on('connection', function(client) {
-  client.on('message', function(data) {
-    if (Date.now() - client.lastMessageAt < 100) {
-      return;
-    }
-    client.lastMessageAt = Date.now();
-    data.id = client.id;
-    return client.json.broadcast.send(data);
-  });
-  return client.on('disconnect', function() {
-    return client.json.broadcast.send({
-      id: client.id,
-      disconnect: true
-    });
-  });
 });

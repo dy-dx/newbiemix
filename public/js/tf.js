@@ -61,7 +61,7 @@ var tf = {};
     this.ready = options.ready;
 
     this.div = $('<div class="sprite">').addClass(this.name);
-    this.img = $('<img>', { src: '/images/sprites/' + this.name + '.png' })
+    this.img = $('<img>', { src: '/img/sprites/' + this.name + '.png' })
       .load(function() {
         self.size = new tf.Vector(this.width, this.height);
         self.draw();
@@ -318,10 +318,11 @@ var tf = {};
 
     ////// Networking //////
     var players = tf.players = {};
-    var ws = tf.ws = io.connect(null, {
-      // 'port': '#socketIoPort#'
-      'port': 8003
-    });
+    // var ws = tf.ws = io.connect(null, {
+    //   // 'port': '#socketIoPort#'
+    //   'port': 8003
+    // });
+    var ws = tf.ws = io.connect();
     ws.on('connect', function() {
       me.id = ws.socket.sessionid;
       tf.players[me.id] = me;

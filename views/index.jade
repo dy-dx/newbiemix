@@ -1,2 +1,21 @@
-h1= title
-p Welcome to #{title}
+extends layout
+
+block body
+  .navbar.navbar-inverse.navbar-fixed-top
+    .navbar-inner
+      .container
+        a.brand(href='/') SizzlingStats
+        ul.nav
+          li(class='home', ng-class='{active:path()=="/"}')
+            a(href='/') Home
+          li(class='about', ng-class='{active:path()=="/about"}')
+            a(href='/about') About
+  #loading(ng-cloak, ng-show='loading')
+    .alert
+      | Loading...
+  //- Main Content
+  .container
+    .row
+      .span3
+      .span9(ng-view)
+        //- content
