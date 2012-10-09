@@ -100,7 +100,7 @@ module.exports = function(app) {
         status: user.status
       });
       
-      callback(state.length); // Place in line
+      callback(state[queueType].length); // Place in line
     });
 
     // Sprite/Chat Stuff
