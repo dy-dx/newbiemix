@@ -31,6 +31,7 @@ block body
                 img(src='/img/sits_small.png')
   #loading(ng-cloak, ng-show='loading')
     .alert
+      button(type='button', class='close', ng-click='loading=false') ×
       | Loading...
   //- Main Content
   .container
