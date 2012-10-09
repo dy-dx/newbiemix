@@ -11,7 +11,7 @@ block body
           li(class='about', ng-class='{active:path()=="/about"}')
             a(href='/about') About
         - if (loggedIn)
-          button.add-up.btn.btn-large.btn-success Add Up
+          button.add-up.btn.btn-large.btn-success(ng-click='addUp()') Add Up
           .btn-group.pull-right
             a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
               span#profilename
