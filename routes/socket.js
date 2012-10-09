@@ -10,7 +10,7 @@ module.exports = function(app) {
 
   // State
   var state = {
-    users: [],
+    users: {},
     newbiequeue: [],
     coachqueue: []
   };
@@ -27,15 +27,25 @@ module.exports = function(app) {
         return fn('NOT_LOGGED_IN', false);
       }
       data.session = sess;
+
+      // If user is already connected, disconnect the old socket;
+      if (state.users[sess.auth.steam.user._id]) {
+        state.users[sess.auth.steam.user._id].socket.disconnect();
+      }
+
       fn(null, true);
     });
   });
 
   io.sockets.on('connection', function(socket) {
 
+    // Save user and user.socket in state.users Object
     var user = socket.handshake.session.auth.steam.user;
-    console.log('A socket connected: ');
-    console.log(socket.handshake.session.auth);
+    user.socket = socket;
+
+    state.users[user._id] = user;
+
+    console.log('A socket connected: ' + user._id);
 
 
     // Queue Stuff
@@ -115,6 +125,7 @@ module.exports = function(app) {
     });
     
     socket.on('disconnect', function() {
+      console.log('A socket disconnected: ' + user._id);
       return socket.json.broadcast.send({
         id: socket.id,
         disconnect: true

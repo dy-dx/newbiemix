@@ -48,6 +48,10 @@ function MainCtrl($scope, $location, $rootScope, socket) {
 
   // Socket.io
 
+  socket.on('disconnect', function() {
+    alert('got booted');
+  });
+
   socket.on('addUp', function(data) {
     console.log(data);
   });
