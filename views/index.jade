@@ -6,10 +6,10 @@ block body
       .container
         a.brand(href='/') SizzlingStats
         ul.nav
-          li(class='home', ng-class='{active:path()=="/"}')
-            a(href='/') Home
-          li(class='about', ng-class='{active:path()=="/about"}')
-            a(href='/about') About
+          //- li(class='home', ng-class='{active:path()=="/"}')
+          //-   a(href='/') Home
+          //- li(class='about', ng-class='{active:path()=="/about"}')
+          //-   a(href='/about') About
         - if (loggedIn)
           button.add-up.btn.btn-large.btn-success(ng-click='addUp()') Add Up
           .btn-group.pull-right

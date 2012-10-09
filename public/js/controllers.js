@@ -3,9 +3,9 @@
 /* Controllers */
 
 function MainCtrl($scope, $location, $rootScope, socket) {
-  $scope.path = function() {
-    return $location.path();
-  };
+  // $scope.path = function() {
+  //   return $location.path();
+  // };
   $scope.loading = false;
   $rootScope.$on('$routeChangeStart', function() {
     $scope.loading = true;

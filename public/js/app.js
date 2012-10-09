@@ -8,10 +8,10 @@ var app = angular.module('myApp', ['myApp.services']).
       .when('/', {
         templateUrl: 'partials/home'
       })
-      .when('/about', {
-        templateUrl: 'partials/about'
-        // controller: AboutCtrl
-      })
+      // .when('/about', {
+      //   templateUrl: 'partials/about'
+      //   // controller: AboutCtrl
+      // })
       .otherwise({
         redirectTo: '/'
       });
