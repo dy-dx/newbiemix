@@ -4,8 +4,6 @@
  */
 
 exports.index = function(req, res) {
-  console.log(req.loggedIn);
-  console.log(req.user);
   res.render('index', {
     loggedIn: req.loggedIn,
     user: req.user

@@ -1,23 +1,31 @@
 /*
  * Serve content over a socket
  */
+// Following http://www.danielbaulig.de/socket-ioexpress/
+
+var parseCookie = require('connect').utils.parseCookie;
 
 module.exports = function(app) {
   var io = app.io;
 
-  io.sockets.on('connection', function(client) {
+  io.sockets.on('connection', function(socket) {
 
-    client.on('message', function(data) {
-      if (Date.now() - client.lastMessageAt < 100) {
+    console.log(socket.handshake.session);
+
+    console.log('A socket with sessionID ' + socket.handshake.session +
+        ' connected!');
+
+    socket.on('message', function(data) {
+      if (Date.now() - socket.lastMessageAt < 100) {
         return;
       }
-      client.lastMessageAt = Date.now();
-      data.id = client.id;
-      return client.json.broadcast.send(data);
+      socket.lastMessageAt = Date.now();
+      data.id = socket.id;
+      return socket.json.broadcast.send(data);
     });
-    return client.on('disconnect', function() {
-      return client.json.broadcast.send({
-        id: client.id,
+    return socket.on('disconnect', function() {
+      return socket.json.broadcast.send({
+        id: socket.id,
         disconnect: true
       });
     });

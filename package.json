@@ -6,6 +6,7 @@
     "node": "0.8.x"
   },
   "dependencies": {
+    "connect": "1.x",
     "everyauth": "git://github.com/christopherjkim/everyauth.git#steam",
     "express": "2.5.11",
     "jade": ">= 0.0.1",
