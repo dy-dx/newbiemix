@@ -165,18 +165,6 @@ app.io.set('transports', [
   'xhr-polling',
   'jsonp-polling'
 ]);
-app.io.set('authorization', function(data, fn){
-  var cookies = parseCookie(data.headers.cookie);
-  var sid = cookies['connect.sid'];
-  app.store.load(sid, function(err, sess){
-    if (err) {
-      // return fn(err);
-      return fn(null, false);
-    }
-    data.session = sess;
-    fn(null, true);
-  });
-});
 var socket = require('./routes/socket')(app);
 
 app.listen(port, function(){
