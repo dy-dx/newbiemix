@@ -52,42 +52,50 @@ module.exports = function(app) {
 
     socket.on('addUp', function(classes, callback) {
       // Validate inputted array of user's chosen classes
-      if (!(Array.isArray(classes) && classes.length > 0 && classes.length < 6)) { return res(false); }
-      var validClasses = ['class-scout','class-psoldier','class-rsoldier', 'class-medic', 'class-demoman'];
+      if (!(Array.isArray(classes) && classes.length === 5)) { return callback(false); }
+      var selectedClasses = [];
+      // Oh dear god
+      classes.forEach(function(c,index) {
+        if ( (c.id === 'scout' || c.id === 'psoldier' || c.id === 'rsoldier' || c.id === 'medic' || c.id === 'demoman') && c.selected === true ) {
+          selectedClasses.push(c.id);
+        }
+      });
+
+      var validClasses = ['scout','psoldier','rsoldier', 'medic', 'demoman'];
       var addedUp = false;
       // Create costs matrix for the Hungarian Algorithm
       var costs = [100000,100000,100000,100000,100000,100000,100000,100000,100000,100000,100000,100000];
       var prefscale = 1; // How much to weigh the order of class preferences
       var duplicates = []; // Holds processed classes to check for duplicates
-      classes.forEach( function(classId, index) {
-        if (duplicates.indexOf(classId) > -1) {
-          return res(false);
+      selectedClasses.forEach( function(cid, index) {
+        if (duplicates.indexOf(cid) > -1) {
+          return callback(false);
         }
-        if (classId === 'class-scout') {
+        if (cid === 'scout') {
           costs[0] = (index + 1)*prefscale;
           costs[1] = (index + 1)*prefscale;
           costs[2] = (index + 1)*prefscale;
           costs[3] = (index + 1)*prefscale;
-        } else if (classId === 'class-psoldier') {
+        } else if (cid === 'psoldier') {
           costs[4] = (index + 1)*prefscale;
           costs[5] = (index + 1)*prefscale;
-        } else if (classId === 'class-rsoldier') {
+        } else if (cid === 'rsoldier') {
           costs[6] = (index + 1)*prefscale;
           costs[7] = (index + 1)*prefscale;
-        } else if (classId === 'class-demoman') {
+        } else if (cid === 'demoman') {
           costs[8] = (index + 1)*prefscale;
           costs[9] = (index + 1)*prefscale;
-        } else if (classId === 'class-medic') {
+        } else if (cid === 'medic') {
           costs[10] = (index + 1)*prefscale;
           costs[11] = (index + 1)*prefscale;
         } else {
           return res(false);
         }
-        duplicates.push(classId);
+        duplicates.push(cid);
       });
 
       // Update user with new classes/costs arrays
-      user.classes = classes;
+      user.classes = selectedClasses;
       user.costs = costs;
 
       // If user is already in a queue, remove from queue. Then add to queue.
@@ -101,7 +109,8 @@ module.exports = function(app) {
       }
       state[queueType].push(user);
 
-      console.log(state);
+      console.log(user.classes);
+      
       io.sockets.emit('addUp', {
         _id: user._id,
         classes: user.classes,

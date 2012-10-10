@@ -14,12 +14,23 @@ function MainCtrl($scope, $location, $rootScope, socket) {
     $scope.loading = false;
   });
 
-  // Adding up as a class
+
+  /**
+   * Adding to queue
+   */
+
+  $scope.classes = [
+    {name: 'Scout', id: 'scout', selected: true},
+    {name: 'Pocket', id: 'psoldier', selected: true},
+    {name: 'Roamer', id: 'rsoldier', selected: true},
+    {name: 'Medic', id: 'medic', selected: true},
+    {name: 'Demoman', id: 'demoman', selected: true}
+  ];
+
   $scope.addUp = function() {
 
-    var classes = [];
-    var validClasses = ['class-scout','class-psoldier','class-rsoldier', 'class-medic', 'class-demoman'];
-    socket.emit('addUp', validClasses, function(response) {
+    // Maybe implement some client-side validation here?
+    socket.emit('addUp', $scope.classes, function(response) {
       if (typeof(response) !== 'Number') {
         // Do something
       }

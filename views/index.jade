@@ -4,13 +4,15 @@ block body
   .navbar.navbar-inverse.navbar-fixed-top
     .navbar-inner
       .container
-        a.brand(href='/') Newbie Mix
-        ul.nav
+        //- ul.nav
           //- li(class='home', ng-class='{active:path()=="/"}')
           //-   a(href='/') Home
           //- li(class='about', ng-class='{active:path()=="/about"}')
           //-   a(href='/about') About
         - if (loggedIn)
+          ul.nav(ui-sortable, ng-model='classes')
+            li.class-icon(ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected')
+              | {{c.name}}
           button.add-up.btn.btn-large.btn-success(ng-click='addUp()') Add Up
           .btn-group.pull-right
             a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
@@ -25,6 +27,7 @@ block body
               li
                 a(href='#') Sign Out
         - else
+          a.brand(href='/') Newbie Mix
           .btn-group.pull-right
             span#steamlogin
               a(href='/auth/steam', target='_self')

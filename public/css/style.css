@@ -10,6 +10,22 @@ body {
   left: 50%;
   margin-left: -42px;
 }
+.class-icon,
+.placeholder {
+  width: 64px;
+  height: 64px;
+  margin: 10px 2px;
+  text-align: center;
+  color: #fff;
+  font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+.class-icon {
+  border: 1px solid #fff;
+  background-color: #00f;
+}
+.class-icon-deselected {
+  opacity: 0.5;
+}
 .sprite {
   position: absolute;
 }
