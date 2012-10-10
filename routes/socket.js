@@ -118,19 +118,22 @@ module.exports = function(app) {
         rank: user.rank,
         status: user.status
       });
-      
+
       callback(state[queueType].length); // Place in line
     });
 
 
     socket.on('queue:remove', function(dummy, callback) {
-      // If user is already in a queue, remove from queue. Then add to queue.
+      // If user is already in a queue, remove from queue.
       // You should probable make a removeFromQueue() function or something
+
       var queueType = user.rank + 'queue';
+
       for (var i=0, len=state[queueType].length; i<len; ++i) {
         if (state[queueType][i]._id === user._id) {
 
           state[queueType].splice(i,1);
+          break; //Break because you spliced it
 
         }
       }
