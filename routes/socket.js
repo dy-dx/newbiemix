@@ -21,10 +21,9 @@ module.exports = function(app) {
     var cookies = parseCookie(data.headers.cookie);
     var sid = cookies['connect.sid'];
     app.store.load(sid, function(err, sess){
-      // if (err) {
-        // return fn(err);
       if (err || !sess || !sess.auth || !sess.auth.loggedIn) {
-        return fn('NOT_LOGGED_IN', false);
+        data.NOT_LOGGED_IN = true;
+        return fn(null, true);
       }
       data.session = sess;
 
@@ -38,6 +37,9 @@ module.exports = function(app) {
   });
 
   io.sockets.on('connection', function(socket) {
+
+    // Don't take input from not_logged_in sockets
+    if (socket.handshake.NOT_LOGGED_IN) return;
 
     // Save user and user.socket in state.users Object
     var user = socket.handshake.session.auth.steam.user;
