@@ -7,7 +7,6 @@ var express = require('express'),
   util = require('util'),
   mongoose = require('mongoose'),
   everyauth = require('everyauth'),
-  request = require('request'),
   env = require('./cfg/env'),
   port = env.port,
   secrets = env.secrets,
@@ -48,32 +47,34 @@ everyauth.steam
         return promise.fail(err);
       }
       if (player) {
-        // Probably change this to update the player's info on login
+        // Update the player's info on login
         // Instead of just retrieving old info
-        promise.fulfill(player);
+
+        Player.getSteamApiInfo(steamid, function(err, steamInfo) {
+          if (err) return promise.fail(err);
+
+          player.name = steamInfo.personaname;
+          player.avatar = steamInfo.avatar;
+          player.updated = new Date();
+          player.status = 'active'; // I forgot what this was for?
+          if (steamInfo.loccountrycode) {
+            player.country = steamInfo.loccountrycode;
+          }
+
+          player.save(function(err) {
+            if (err) {
+              console.log(err);
+              return promise.fail(err);
+            }
+            promise.fulfill(player);
+          });
+        });
+
       } else {
-        var options = {
-          uri: 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/',
-          qs: { key: secrets.steam, steamids: steamid },
-          json: true
-        };
 
-        request(options, function(err, res, body) {
-          if (err) {
-            console.log('Steam API Request Error', err);
-            return promise.fail(err);
-          }
-          if (res.statusCode !== 200) {
-            console.log('Steam API Status Code: ' + res.statusCode);
-            console.log(res.body);
-            return promise.fail();
-          }
-          if (body.response.players.length === 0) {
-            console.log('Steam Api Player Not Found: ' + steamid);
-            return promise.fail();
-          }
+        Player.getSteamApiInfo(steamid, function(err, steamInfo) {
+          if (err) return promise.fail(err);
 
-          var steamInfo = body.response.players[0];
           var newPlayer = new Player({
             _id: steamid,
             name: steamInfo.personaname,
@@ -93,7 +94,9 @@ everyauth.steam
             }
             promise.fulfill(newPlayer);
           });
-        }); // End request()
+
+        });
+
       }
 
       // session.save();
