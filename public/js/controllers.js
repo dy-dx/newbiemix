@@ -27,35 +27,44 @@ function MainCtrl($scope, $location, $rootScope, socket) {
     {name: 'Demoman', id: 'demoman', selected: true}
   ];
 
-  $scope.addUp = function() {
+  $scope.added = false;
+  $scope.buttonText = $scope.added ? 'Remove' : 'Add Up';
+  $scope.buttonClass = $scope.added ? 'btn-danger' : 'btn-success';
 
-    // Maybe implement some client-side validation here?
-    socket.emit('addUp', $scope.classes, function(response) {
-      if (typeof(response) !== 'Number') {
-        // Do something
-      }
-      alert('Queue position: ' + response);
-    }); // Need a callback for this
-
-    // if ($(this).hasClass('active')) {
-    //   $(this).button('reset').button('toggle');
-    //   return ss.rpc('app.removeFromQueue');
-    // }
-    // var classes = $('#classes-selected').sortable('toArray');
-    // if (!hasSteamInfo()) {
-    //   return jqueryalert('You must sign in to do that.');
-    // } else {
-    //   return ss.rpc('app.addUp', classes, function(success) {
-    //     if (success) {
-    //       $('#addup-button').button('complete').button('toggle');
-    //       // $('#addup-button').toggleClass('disabled').setAttribute('disabled');
-    //       return;
-    //     } else {
-    //       return jqueryalert('Something went wrong.');
-    //     }
-    //   });
-    // };
+  $scope.addOrRemove = function() {
+    if ($scope.added) {
+      // Remove from queue
+      socket.emit('queue:remove', null, function(response) {
+        if (!response) {
+          alert('Something went wrong.');
+        }
+        $scope.added = false;
+        $scope.buttonText = 'Add Up';
+        $scope.buttonClass = 'btn-success';
+        $scope.queuePos = null;
+      });
+    } else {
+      // Add to queue
+      socket.emit('queue:add', $scope.classes, function(response) {
+        if (typeof(response) !== 'number') {
+          alert('Something went wrong.');
+        }
+        $scope.added = true;
+        $scope.buttonText = 'Remove';
+        $scope.buttonClass = 'btn-danger';
+        $scope.queuePos = response;
+      });
+    }
   };
+
+  /**
+   * Status updates
+   */
+
+  socket.on('status:userCounts', function(data) {
+    $scope.userCounts = data;
+    console.log(data);
+  });
 
   // Socket.io
 

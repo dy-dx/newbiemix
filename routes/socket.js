@@ -50,7 +50,7 @@ module.exports = function(app) {
 
     // Queue Stuff
 
-    socket.on('addUp', function(classes, callback) {
+    socket.on('queue:add', function(classes, callback) {
       // Validate inputted array of user's chosen classes
       if (!(Array.isArray(classes) && classes.length === 5)) { return callback(false); }
       var selectedClasses = [];
@@ -110,8 +110,8 @@ module.exports = function(app) {
       state[queueType].push(user);
 
       console.log(user.classes);
-      
-      io.sockets.emit('addUp', {
+
+      io.sockets.emit('queue:add', {
         _id: user._id,
         classes: user.classes,
         name: user.name,
@@ -121,6 +121,23 @@ module.exports = function(app) {
       
       callback(state[queueType].length); // Place in line
     });
+
+
+    socket.on('queue:remove', function(dummy, callback) {
+      // If user is already in a queue, remove from queue. Then add to queue.
+      // You should probable make a removeFromQueue() function or something
+      var queueType = user.rank + 'queue';
+      for (var i=0, len=state[queueType].length; i<len; ++i) {
+        if (state[queueType][i]._id === user._id) {
+
+          state[queueType].splice(i,1);
+
+        }
+      }
+
+      callback(true);
+    });
+
 
     // Sprite/Chat Stuff
 
@@ -142,6 +159,19 @@ module.exports = function(app) {
     });
 
   });
+
+
+  // Status Updates
+
+  setInterval(function() {
+    io.sockets.emit('status:userCounts', {
+      newbies: state.newbiequeue.length,
+      coaches: state.coachqueue.length,
+      // This is slow supposedly? Maybe just keep a count
+      users: Object.keys(state.users).length
+    });
+  }, 2000);
+
 
   // Helpers
 

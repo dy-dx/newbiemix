@@ -13,7 +13,8 @@ block body
           ul.nav(ui-sortable, ng-model='classes')
             li.class-icon(ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected')
               | {{c.name}}
-          button.add-up.btn.btn-large.btn-success(ng-click='addUp()') Add Up
+          button.add-up.btn.btn-large(class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
+          //- Status updates:
           .btn-group.pull-right
             a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
               span#profilename
@@ -26,6 +27,11 @@ block body
               li.divider
               li
                 a(href='#') Sign Out
+          .user-counts.pull-right(style='margin-right: 15px;')
+            | users: {{userCounts.users}}<br />
+            | noobs: {{userCounts.newbies}}<br />
+            | coaches: {{userCounts.coaches}}<br />
+            | queue pos: {{queuePos}}
         - else
           a.brand(href='/') Newbie Mix
           .btn-group.pull-right
