@@ -205,6 +205,8 @@ module.exports = function(app) {
         if (state.coachqueue[i]._id === coach._id) {
           state.coachqueue.splice(i,1);
         }
+        // Break because you spliced it
+        break;
       }
 
       // Push to team
@@ -221,6 +223,8 @@ module.exports = function(app) {
         if (state.newbiequeue[i]._id === newbie._id) {
           state.newbiequeue.splice(i,1);
         }
+        // Break because you spliced it
+        break;
       }
 
       // Push to team
