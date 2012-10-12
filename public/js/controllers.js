@@ -63,16 +63,19 @@ function MainCtrl($scope, $location, $rootScope, socket) {
 
   socket.on('status:userCounts', function(data) {
     $scope.userCounts = data;
-    console.log(data);
   });
 
   // Socket.io
 
   socket.on('disconnect', function() {
-    alert('got booted');
+    // alert('got booted');
   });
 
-  socket.on('addUp', function(data) {
+  socket.on('queue:add', function(data) {
+    console.log(data);
+  });
+
+  socket.on('match:join', function(data) {
     console.log(data);
   });
   // socket.emit('stats:subscribe', $routeParams.id);

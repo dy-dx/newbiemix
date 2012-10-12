@@ -3,6 +3,7 @@
  */
 // Following http://www.danielbaulig.de/socket-ioexpress/
 
+var _ = require('underscore');
 var parseCookie = require('connect').utils.parseCookie;
 var matchmaker = require('./matchmaker');
 
@@ -64,7 +65,8 @@ module.exports = function(app) {
         }
       });
 
-      var validClasses = ['scout','psoldier','rsoldier', 'medic', 'demoman'];
+      
+
       var addedUp = false;
       // Create costs array for the Hungarian Algorithm
       // Doesn't this belong in matchmaker.js instead?
@@ -185,13 +187,60 @@ module.exports = function(app) {
   // Matchmaking
 
   var matchMake = function() {
-    var solution = matchmaker.matchmaker(state.newbiequeue, state.coachqueue);
+    var chosenPlayers = matchmaker.matchmaker(state.newbiequeue, state.coachqueue);
 
-    if (solution === false) {
+    if (chosenPlayers === false) {
       return;
     }
 
-    console.log(solution);
+    var coaches = _.chain(chosenPlayers).where({rank: 'coach'}).shuffle().value();
+    var newbies = _.chain(chosenPlayers).where({rank: 'newbie'}).shuffle().value();
+    var redteam = [];
+    var bluteam = [];
+
+    coaches.forEach(function(coach, index) {
+
+      // Remove from state.coachqueue
+      for (var i=0, len=state.coachqueue.length; i<len; i++) {
+        if (state.coachqueue[i]._id === coach._id) {
+          state.coachqueue.splice(i,1);
+        }
+      }
+
+      // Push to team
+      if (redteam.length > bluteam.length) {
+        bluteam.push(coach);
+      } else {
+        redteam.push(coach);
+      }
+    });
+
+    newbies.forEach(function(newbie, index) {
+      // Remove from state.newbiequeue
+      for (var i=0, len=state.newbiequeue.length; i<len; i++) {
+        if (state.newbiequeue[i]._id === newbie._id) {
+          state.newbiequeue.splice(i,1);
+        }
+      }
+
+      // Push to team
+      if (redteam.length === 6) return bluteam.push(newbie);
+      var c = newbie.class;
+      var limit = 2;
+      if (c === 'S') limit = 4;
+      if ( _.where(redteam, {class: c}).length === limit ) {
+        bluteam.push(newbie);
+      } else {
+        redteam.push(newbie);
+      }
+    });
+
+    chosenPlayers.forEach(function(player, index) {
+      io.sockets.socket(player.socket.id).emit('match:join', {
+        some: 'fucking shit'
+      });
+    });
+
 
   };
 
