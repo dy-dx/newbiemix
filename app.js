@@ -20,7 +20,7 @@ var app = module.exports = express.createServer();
 
 // Everyauth Configuration
 
-everyauth.everymodule.moduleTimeout(5000); // Wait 5 seconds per step before timing out (default is 10)
+everyauth.everymodule.moduleTimeout(8000); // Wait 8 seconds per step before timing out (default is 10)
 everyauth.everymodule.findUserById( function (req, userId, callback) {
   Player.findById(userId, callback);
   // callback has the signature, function (err, user) {...}
@@ -28,8 +28,6 @@ everyauth.everymodule.findUserById( function (req, userId, callback) {
 everyauth.steam
   .myHostname( env.hostname )
   .findOrCreateUser( function (session, openIdUserAttributes) {
-    console.log(session);
-    console.log(openIdUserAttributes);
     var promise = this.Promise();
     var steamid;
     try {
@@ -118,15 +116,20 @@ app.configure(function(){
     layout: false
   });
 
-  // var RedisStore = require('connect-redis')(express);
-  app.store = new express.session.MemoryStore;
+  // app.store = new express.session.MemoryStore;
+  var RedisStore = require('connect-redis')(express);
+  app.store = new RedisStore({
+    host: '127.0.0.1',
+    port: 6379,
+    db: 1
+  });
 
   app.use(express.cookieParser());
   app.use(express.session({
     secret: secrets.session,
     store: app.store
-    // store: new RedisStore
   }));
+
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(everyauth.middleware());

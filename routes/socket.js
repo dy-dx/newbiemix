@@ -24,7 +24,7 @@ module.exports = function(app) {
   app.io.set('authorization', function(data, fn) {
     var cookies = parseCookie(data.headers.cookie);
     var sid = cookies['connect.sid'];
-    app.store.load(sid, function(err, sess){
+    app.store.get(sid, function(err, sess){
       if (err || !sess || !sess.auth || !sess.auth.loggedIn) {
         data.NOT_LOGGED_IN = true;
         return fn(null, true);
