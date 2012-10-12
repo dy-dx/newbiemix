@@ -4,6 +4,7 @@
 // Following http://www.danielbaulig.de/socket-ioexpress/
 
 var parseCookie = require('connect').utils.parseCookie;
+var matchmaker = require('./matchmaker');
 
 module.exports = function(app) {
   var io = app.io;
@@ -65,33 +66,34 @@ module.exports = function(app) {
 
       var validClasses = ['scout','psoldier','rsoldier', 'medic', 'demoman'];
       var addedUp = false;
-      // Create costs matrix for the Hungarian Algorithm
-      var costs = [100000,100000,100000,100000,100000,100000,100000,100000,100000,100000,100000,100000];
-      var prefscale = 1; // How much to weigh the order of class preferences
+      // Create costs array for the Hungarian Algorithm
+      // Doesn't this belong in matchmaker.js instead?
+      var costs = [3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000];
       var duplicates = []; // Holds processed classes to check for duplicates
       selectedClasses.forEach( function(cid, index) {
+        var c = index + 1;
         if (duplicates.indexOf(cid) > -1) {
           return callback(false);
         }
         if (cid === 'scout') {
-          costs[0] = (index + 1)*prefscale;
-          costs[1] = (index + 1)*prefscale;
-          costs[2] = (index + 1)*prefscale;
-          costs[3] = (index + 1)*prefscale;
+          costs[0] = c;
+          costs[1] = c;
+          costs[2] = c;
+          costs[3] = c;
         } else if (cid === 'psoldier') {
-          costs[4] = (index + 1)*prefscale;
-          costs[5] = (index + 1)*prefscale;
+          costs[4] = c;
+          costs[5] = c;
         } else if (cid === 'rsoldier') {
-          costs[6] = (index + 1)*prefscale;
-          costs[7] = (index + 1)*prefscale;
+          costs[6] = c;
+          costs[7] = c;
         } else if (cid === 'demoman') {
-          costs[8] = (index + 1)*prefscale;
-          costs[9] = (index + 1)*prefscale;
+          costs[8] = c;
+          costs[9] = c;
         } else if (cid === 'medic') {
-          costs[10] = (index + 1)*prefscale;
-          costs[11] = (index + 1)*prefscale;
+          costs[10] = c;
+          costs[11] = c;
         } else {
-          return res(false);
+          return callback(false);
         }
         duplicates.push(cid);
       });
@@ -121,7 +123,9 @@ module.exports = function(app) {
         status: user.status
       });
 
-      callback(state[queueType].length); // Place in line
+      callback(state[queueType].length); // Player's queue position
+
+      matchMake();
     });
 
 
@@ -176,6 +180,20 @@ module.exports = function(app) {
       users: Object.keys(state.users).length
     });
   }, 2000);
+
+
+  // Matchmaking
+
+  var matchMake = function() {
+    var solution = matchmaker.matchmaker(state.newbiequeue, state.coachqueue);
+
+    if (solution === false) {
+      return;
+    }
+
+    console.log(solution);
+
+  };
 
 
   // Helpers
