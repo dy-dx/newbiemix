@@ -15,16 +15,16 @@ exports.matchmaker = function(newbies, coaches) {
   // Try to build a solution with two coaches (the first 2
   //  elements in the array are guaranteed to play) and 10 newbies,
   //  if there aren't enough coaches then just try 12 newbies
-  // var queue = [];
-  // if (clen >= 2) {
+  var queue = [];
+  if (clen >= 2) {
     queue = coaches.slice(0,2).concat(newbies);
-  // } else if (nlen >= 12) {
-  //   queue = newbies.slice();
-  // }
+  } else if (nlen >= 12) {
+    queue = newbies.slice();
+  }
 
-  // if (queue.length < 12) {
-  //   return false;
-  // }
+  if (queue.length < 12) {
+    return false;
+  }
 
 
 
