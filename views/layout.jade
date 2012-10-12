@@ -6,11 +6,18 @@ html(lang="en", ng-app="myApp")
     base(href='/')
     title TF2 Newbie Mix
     link(rel='stylesheet', href='/css/bootstrap.css')
-    style
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
+    - if (loggedIn)
+      style
+        body {
+          padding-top: 106px;
+          padding-bottom: 86px;
+        }
+    - else
+      style
+        body {
+          padding-top: 60px;
+          padding-bottom: 40px;
+        }
     link(rel='stylesheet', href='/css/style.css')
   body(ng-controller='MainCtrl')
     #container
