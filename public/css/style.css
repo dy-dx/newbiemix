@@ -5,6 +5,18 @@ body {
   position: relative;
   -webkit-backface-visibility: hidden;
 }
+#loading {
+  position: fixed;
+  z-index: 9999;
+  width: 100%;
+}
+#loading .alert {
+  position: relative;
+  display: inline;
+  padding: 8px 14px;
+  left: 50%;
+  margin-left: -46px;
+}
 .add-up {
   position: absolute;
   left: 50%;
