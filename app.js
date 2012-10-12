@@ -26,9 +26,7 @@ everyauth.everymodule.findUserById( function (req, userId, callback) {
   // callback has the signature, function (err, user) {...}
 });
 everyauth.steam
-//  .myHostname('http://192.168.1.6:3000')
-  .myHostname('http://localhost:8003')
-  // .myHostname('http://www.sizzlingstats.com:8008')
+  .myHostname( env.hostname )
   .findOrCreateUser( function (session, openIdUserAttributes) {
     console.log(session);
     console.log(openIdUserAttributes);
