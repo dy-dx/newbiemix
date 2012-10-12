@@ -5,6 +5,8 @@
 
 var _ = require('underscore');
 var parseCookie = require('connect').utils.parseCookie;
+var mongoose = require('mongoose');
+var Player = require('../models/player');
 var matchmaker = require('./matchmaker');
 
 module.exports = function(app) {
@@ -43,26 +45,26 @@ module.exports = function(app) {
     // Don't take input from not_logged_in sockets
     if (socket.handshake.NOT_LOGGED_IN) return;
 
+    /**
+     * Initialization
+     */
+    
     // Save user and user.socket in state.users Object
     var user = socket.handshake.session.auth.steam.user;
     user.socket = socket;
-
     state.users[user._id] = user;
+
+    socket.emit('state:init', {
+      rank: user.rank,
+      classes: user.classes
+    });
 
     console.log('A socket connected: ' + user._id);
 
 
-
     /**
-     * Initialization
+     * Queue stuff
      */
-
-    socket.emit('state:init', {
-      rank: user.rank
-    });
-
-
-    // Queue Stuff
 
     socket.on('queue:add', function(classes, callback) {
       // Validate inputted array of user's chosen classes
@@ -112,6 +114,11 @@ module.exports = function(app) {
       // Update user with new classes/costs arrays
       user.classes = selectedClasses;
       user.costs = costs;
+
+      // Save his preferred classes to database
+      Player.update({_id: user._id}, {classes: classes}, function(err) {
+        // I don't care about errs here
+      });
 
       // If user is already in a queue, remove from queue. Then add to queue.
       // You should probable make a removeFromQueue() function or something
@@ -184,6 +191,12 @@ module.exports = function(app) {
         id: socket.id,
         disconnect: true
       });
+
+      // Smart disconnect handling (give user 1 min to reconnect,
+      //  in the meantime set his status to 'idle' so he is
+      //  rejected by the matchmaker)
+      user.status = 'idle';
+
     });
 
   });

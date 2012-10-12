@@ -9,13 +9,14 @@ var playerSchema = new mongoose.Schema({
   avatar: String,
   updated: Date,
   country: { type: String, default: 'i dunno' }, // Some players don't have this
-  status: { type: String, required: true },
-  rank: { type: String, required: true }
-});
-
-playerSchema.pre('validate', function(next) {
-  console.log(this);
-  next();
+  rank: { type: String, required: true },
+  classes: { type: Array, default: [
+      {name: 'Scout', id: 'scout', selected: true},
+      {name: 'Pocket', id: 'psoldier', selected: true},
+      {name: 'Roamer', id: 'rsoldier', selected: true},
+      {name: 'Medic', id: 'medic', selected: true},
+      {name: 'Demoman', id: 'demoman', selected: true}
+    ]} // Do I need to validate this?
 });
 
 var steamIdToNumericId = function(steamid) {
@@ -49,6 +50,7 @@ var steamIdToNumericId = function(steamid) {
   return converted;
 };
 
+// I have no idea if this function works
 var numericIdToSteamId = function(profile) {
   var base = "7960265728";
   var profile = profile.substr(7);

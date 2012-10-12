@@ -19,14 +19,6 @@ function MainCtrl($scope, $location, $rootScope, socket) {
    * Adding to queue
    */
 
-  $scope.classes = [
-    {name: 'Scout', id: 'scout', selected: true},
-    {name: 'Pocket', id: 'psoldier', selected: true},
-    {name: 'Roamer', id: 'rsoldier', selected: true},
-    {name: 'Medic', id: 'medic', selected: true},
-    {name: 'Demoman', id: 'demoman', selected: true}
-  ];
-
   $scope.added = false;
   $scope.buttonText = $scope.added ? 'Remove' : 'Add Up';
   $scope.buttonClass = $scope.added ? 'btn-danger' : 'btn-success';
@@ -65,6 +57,7 @@ function MainCtrl($scope, $location, $rootScope, socket) {
 
   socket.on('state:init', function(data) {
     $scope.rank = data.rank;
+    $scope.classes = data.classes;
   });
 
 
