@@ -19,9 +19,11 @@ function MainCtrl($scope, $location, $rootScope, socket) {
    * Adding to queue
    */
 
-  $scope.added = false;
-  $scope.buttonText = $scope.added ? 'Remove' : 'Add Up';
-  $scope.buttonClass = $scope.added ? 'btn-danger' : 'btn-success';
+  var updateAddedState = function(added) {
+    $scope.added = added;
+    $scope.buttonText = added ? 'Remove' : 'Add Up';
+    $scope.buttonClass = added ? 'btn-danger' : 'btn-success';
+  };
 
   $scope.addOrRemove = function() {
     if ($scope.added) {
@@ -30,9 +32,7 @@ function MainCtrl($scope, $location, $rootScope, socket) {
         if (!response) {
           alert('Something went wrong.');
         }
-        $scope.added = false;
-        $scope.buttonText = 'Add Up';
-        $scope.buttonClass = 'btn-success';
+        updateAddedState(false);
         $scope.queuePos = null;
         $scope.userCounts[$scope.rank] -= 1;
       });
@@ -42,9 +42,7 @@ function MainCtrl($scope, $location, $rootScope, socket) {
         if (typeof(response) !== 'number') {
           alert('Something went wrong.');
         }
-        $scope.added = true;
-        $scope.buttonText = 'Remove';
-        $scope.buttonClass = 'btn-danger';
+        updateAddedState(true);
         $scope.queuePos = response;
         $scope.userCounts[$scope.rank] += 1;
       });
@@ -58,6 +56,7 @@ function MainCtrl($scope, $location, $rootScope, socket) {
   socket.on('state:init', function(data) {
     $scope.rank = data.rank;
     $scope.classes = data.classes;
+    updateAddedState(data.added);
   });
 
 

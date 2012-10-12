@@ -48,15 +48,28 @@ module.exports = function(app) {
     /**
      * Initialization
      */
-    
-    // Save user and user.socket in state.users Object
+
     var user = socket.handshake.session.auth.steam.user;
+    // If existing user in state, then take that one instead
+    //  and clear timeout if that exists
+    if (state.users[user._id]) {
+      user = state.users[user._id];
+      if (user.timeoutId) {
+        clearTimeout(user.timeoutId);
+      }
+    } else {
+      // Else save user and user.socket in state.users Object
+      state.users[user._id] = user;
+      user.added = false;
+    }
     user.socket = socket;
-    state.users[user._id] = user;
+    user.status = 'active';
+    
 
     socket.emit('state:init', {
       rank: user.rank,
-      classes: user.classes
+      classes: user.classes,
+      added: user.added
     });
 
     console.log('A socket connected: ' + user._id);
@@ -111,8 +124,7 @@ module.exports = function(app) {
         duplicates.push(cid);
       });
 
-      // Update user with new classes/costs arrays
-      user.classes = selectedClasses;
+      // Update user with new costs array
       user.costs = costs;
 
       // Save his preferred classes to database
@@ -130,8 +142,7 @@ module.exports = function(app) {
         }
       }
       state[queueType].push(user);
-
-      console.log(user.classes);
+      user.added = true;
 
       socket.broadcast.emit('queue:add', {
         _id: user._id,
@@ -169,7 +180,7 @@ module.exports = function(app) {
           break; //Break because you spliced it
         }
       }
-
+      user.added = false;
       callback(true);
     });
 
@@ -187,7 +198,8 @@ module.exports = function(app) {
     
     socket.on('disconnect', function() {
       console.log('A socket disconnected: ' + user._id);
-      return socket.json.broadcast.send({
+      // The sprite stuff
+      socket.json.broadcast.send({
         id: socket.id,
         disconnect: true
       });
@@ -196,6 +208,32 @@ module.exports = function(app) {
       //  in the meantime set his status to 'idle' so he is
       //  rejected by the matchmaker)
       user.status = 'idle';
+      user.timeoutId = setTimeout(function() {
+        // Remove user from queue and users obj
+        // You should probably make a removeFromQueue() function or something
+        var queueType = user.rank + 'queue';
+
+        for (var i=0, len=state[queueType].length; i<len; ++i) {
+          if (state[queueType][i]._id === user._id) {
+
+            socket.broadcast.emit('queue:remove', {
+              rank: user.rank,
+              queuePos: i,
+              _id: user._id,
+              classes: user.classes,
+              name: user.name,
+              status: user.status
+            });
+
+            state[queueType].splice(i,1);
+            break; //Break because you spliced it
+          }
+        }
+        console.log('Deleting user for real: ' + user._id);
+        delete(state.users[user._id]);
+        // Maybe i need to call delete on the socket as well? who knows
+
+      }, 60*1000);
 
     });
 
@@ -270,6 +308,7 @@ module.exports = function(app) {
     });
 
     chosenPlayers.forEach(function(player, index) {
+      state.users[player._id].added = false;
       io.sockets.socket(player.socket.id).emit('match:join', {
         some: 'fucking shit'
       });

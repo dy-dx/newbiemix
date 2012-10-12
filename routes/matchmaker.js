@@ -1,6 +1,10 @@
 /*
  * Matchmaking Algorithm
+ *
+ * Returns an array of *copies* of users who are selected
  */
+
+var _ = require('underscore');
 
 exports.matchmaker = function(newbies, coaches) {
   var benchmark = Date.now();
@@ -21,6 +25,9 @@ exports.matchmaker = function(newbies, coaches) {
   } else if (nlen >= 12) {
     queue = newbies.slice();
   }
+
+  // Ignore 'idle' players
+  queue = _.where(queue, {status: 'active'});
 
   if (queue.length < 12) {
     return false;
