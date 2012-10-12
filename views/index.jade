@@ -29,8 +29,8 @@ block body
                 a(href='/signout/', target='_self') Sign Out
           .user-counts.pull-right(style='margin-right: 15px;')
             | users: {{userCounts.users}}<br />
-            | noobs: {{userCounts.newbies}}<br />
-            | coaches: {{userCounts.coaches}}<br />
+            | noobs: {{userCounts.newbie}}<br />
+            | coaches: {{userCounts.coach}}<br />
             | queue pos: {{queuePos}}
         - else
           a.brand(href='/') Newbie Mix

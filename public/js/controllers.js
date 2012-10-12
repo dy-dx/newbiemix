@@ -42,6 +42,7 @@ function MainCtrl($scope, $location, $rootScope, socket) {
         $scope.buttonText = 'Add Up';
         $scope.buttonClass = 'btn-success';
         $scope.queuePos = null;
+        $scope.userCounts[$scope.rank] -= 1;
       });
     } else {
       // Add to queue
@@ -53,9 +54,19 @@ function MainCtrl($scope, $location, $rootScope, socket) {
         $scope.buttonText = 'Remove';
         $scope.buttonClass = 'btn-danger';
         $scope.queuePos = response;
+        $scope.userCounts[$scope.rank] += 1;
       });
     }
   };
+
+  /**
+   * Initialization
+   */
+
+  socket.on('state:init', function(data) {
+    $scope.rank = data.rank;
+  });
+
 
   /**
    * Status updates
@@ -65,15 +76,24 @@ function MainCtrl($scope, $location, $rootScope, socket) {
     $scope.userCounts = data;
   });
 
+  socket.on('queue:add', function(data) {
+    $scope.userCounts[data.rank] += 1;
+  });
+
+  socket.on('queue:remove', function(data) {
+    $scope.userCounts[data.rank] -= 1;
+
+    if ($scope.queuePos && data.queuePos < $scope.queuePos) {
+      $scope.queuePos -= 1;
+    }
+  });
+
   // Socket.io
 
   socket.on('disconnect', function() {
     // alert('got booted');
   });
 
-  socket.on('queue:add', function(data) {
-    console.log(data);
-  });
 
   socket.on('match:join', function(data) {
     console.log(data);

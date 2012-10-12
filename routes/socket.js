@@ -52,6 +52,16 @@ module.exports = function(app) {
     console.log('A socket connected: ' + user._id);
 
 
+
+    /**
+     * Initialization
+     */
+
+    socket.emit('state:init', {
+      rank: user.rank
+    });
+
+
     // Queue Stuff
 
     socket.on('queue:add', function(classes, callback) {
@@ -64,7 +74,6 @@ module.exports = function(app) {
           selectedClasses.push(c.id);
         }
       });
-
       
 
       var addedUp = false;
@@ -117,7 +126,7 @@ module.exports = function(app) {
 
       console.log(user.classes);
 
-      io.sockets.emit('queue:add', {
+      socket.broadcast.emit('queue:add', {
         _id: user._id,
         classes: user.classes,
         name: user.name,
@@ -140,9 +149,17 @@ module.exports = function(app) {
       for (var i=0, len=state[queueType].length; i<len; ++i) {
         if (state[queueType][i]._id === user._id) {
 
+          socket.broadcast.emit('queue:remove', {
+            rank: user.rank,
+            queuePos: i,
+            _id: user._id,
+            classes: user.classes,
+            name: user.name,
+            status: user.status
+          });
+
           state[queueType].splice(i,1);
           break; //Break because you spliced it
-
         }
       }
 
@@ -176,8 +193,8 @@ module.exports = function(app) {
 
   setInterval(function() {
     io.sockets.emit('status:userCounts', {
-      newbies: state.newbiequeue.length,
-      coaches: state.coachqueue.length,
+      newbie: state.newbiequeue.length,
+      coach: state.coachqueue.length,
       // This is slow supposedly? Maybe just keep a count
       users: Object.keys(state.users).length
     });
