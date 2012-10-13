@@ -102,8 +102,6 @@ module.exports = function(app) {
         }
       });
       
-
-      var addedUp = false;
       // Create costs array for the Hungarian Algorithm
       // Doesn't this belong in matchmaker.js instead?
       var costs = [3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000];
