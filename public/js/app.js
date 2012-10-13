@@ -6,12 +6,13 @@ var app = angular.module('myApp', ['myApp.services', 'ui']).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: 'partials/home'
+        templateUrl: 'partials/home',
+        controller: HomeCtrl
       })
-      // .when('/about', {
-      //   templateUrl: 'partials/about'
-      //   // controller: AboutCtrl
-      // })
+      .when('/mix/:id', {
+        templateUrl: 'partials/mix',
+        controller: MixCtrl
+      })
       .otherwise({
         redirectTo: '/'
       });

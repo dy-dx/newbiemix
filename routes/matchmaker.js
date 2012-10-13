@@ -23,7 +23,7 @@ exports.matchmaker = function(newbies, coaches) {
   if (clen >= 2) {
     queue = coaches.slice(0,2).concat(newbies);
   } else if (nlen >= 12) {
-    queue = newbies.slice();
+   queue = newbies.slice();
   }
 
   // Ignore 'idle' players

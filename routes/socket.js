@@ -7,6 +7,8 @@ var _ = require('underscore');
 var parseCookie = require('connect').utils.parseCookie;
 var mongoose = require('mongoose');
 var Player = require('../models/player');
+var Server = require('../models/server');
+var Mix = require('../models/mix');
 var matchmaker = require('./matchmaker');
 
 module.exports = function(app) {
@@ -15,9 +17,18 @@ module.exports = function(app) {
   // State
   var state = {
     users: {},
+    servers: [],
     newbiequeue: [],
     coachqueue: []
   };
+
+  // Get list of servers, this is async but I'm gonna assume
+  //  that it'll complete by the time I need the data
+  Server.find({}, function(err, servers) {
+    if (err) throw err;
+    state.servers = servers;
+    console.log(servers);
+  });
 
   // Express session authorization
 
@@ -255,8 +266,12 @@ module.exports = function(app) {
   // Matchmaking
 
   var matchMake = function() {
-    var chosenPlayers = matchmaker.matchmaker(state.newbiequeue, state.coachqueue);
+    var availableServers = _.where(state.servers, {status: 'available'});
+    if (availableServers.length === 0) {
+      return;
+    }
 
+    var chosenPlayers = matchmaker.matchmaker(state.newbiequeue, state.coachqueue);
     if (chosenPlayers === false) {
       return;
     }
@@ -307,12 +322,38 @@ module.exports = function(app) {
       }
     });
 
-    chosenPlayers.forEach(function(player, index) {
-      state.users[player._id].added = false;
-      io.sockets.socket(player.socket.id).emit('match:join', {
-        some: 'fucking shit'
-      });
+    // Set server status to "in-game"
+    availableServers[0].status = 'in-game';
+
+    // Create new "mix" document, save to db
+
+    var mixId = '' + Date.now();
+    // I DON'T KNOW WHY I HAVE TO COPY THE SERVER OBJ
+    //  BUT IT DOESN'T WORK UNLESS I DO
+    var server = _.clone(availableServers[0]);
+    var newMix = new Mix({
+      _id: mixId,
+      redteam: redteam,
+      bluteam: bluteam,
+      server: server,
+      updated: new Date()
     });
+    newMix.save(function(err) {
+      if (err) {
+        console.log(err);
+        // TODO: Handle an err here
+      }
+
+      chosenPlayers.forEach(function(player, index) {
+        state.users[player._id].added = false;
+        io.sockets.socket(player.socket.id).emit('match:join', {
+          mixId: mixId
+        });
+      });
+
+    });
+
+    
 
 
   };

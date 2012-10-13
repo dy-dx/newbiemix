@@ -2,7 +2,7 @@
 
 /* Controllers */
 
-function MainCtrl($scope, $location, $rootScope, socket) {
+function MainCtrl($scope, $location, $window, $rootScope, socket) {
   // $scope.path = function() {
   //   return $location.path();
   // };
@@ -88,11 +88,31 @@ function MainCtrl($scope, $location, $rootScope, socket) {
 
 
   socket.on('match:join', function(data) {
-    console.log(data);
+    
+    $location.url('/mix/' + data.mixId);
+    
+
   });
-  // socket.emit('stats:subscribe', $routeParams.id);
-  // socket.on('stats:send', function (data) {
-  //   $scope.stats = data.stats;
-  //   $scope.playerMetaData = data.playerdata;
-  // });
+
+}
+
+
+function HomeCtrl($scope, $window, $rootScope, socket) {
+
+
+}
+
+
+function MixCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
+
+  $scope.mix = {};
+
+  $http.get('/api/mixes/' + $routeParams.id)
+    .success(function(data, status, headers, config) {
+      $scope.mix = data.mix;
+
+      var connect = 'steam://connect/' + $scope.mix.ip + '/' + $scope.mix.password;
+      $window.location.href = connect;
+    });
+
 }

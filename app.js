@@ -110,6 +110,7 @@ everyauth.steam
 // Configuration
 
 app.configure(function(){
+  app.use(express.logger('dev'));
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.set('view options', {
@@ -150,6 +151,7 @@ app.configure('production', function(){
 
 app.get('/', routes.index);
 app.get('/partials/:name', routes.partials);
+app.get('/api/mixes/:id', routes.mixes);
 
 // redirect all others to the index (HTML5 history)
 app.get('*', routes.index);

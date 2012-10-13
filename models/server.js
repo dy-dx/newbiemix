@@ -9,3 +9,7 @@ var serverSchema = new mongoose.Schema({
   password: { type: String, required: true },
   status: String
 });
+
+var Server = mongoose.model('Server', serverSchema);
+
+module.exports = Server;
