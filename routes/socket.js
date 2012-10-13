@@ -72,7 +72,7 @@ module.exports = function(app) {
       added: user.added
     });
 
-    console.log('A socket connected: ' + user._id);
+    console.log('A socket connected: ' + user.name);
 
 
     /**
@@ -197,7 +197,7 @@ module.exports = function(app) {
     });
     
     socket.on('disconnect', function() {
-      console.log('A socket disconnected: ' + user._id);
+      console.log('A socket disconnected: ' + user.name);
       // The sprite stuff
       socket.json.broadcast.send({
         id: socket.id,
@@ -229,7 +229,7 @@ module.exports = function(app) {
             break; //Break because you spliced it
           }
         }
-        console.log('Deleting user for real: ' + user._id);
+        console.log('Deleting user for real: ' + user.name);
         delete(state.users[user._id]);
         // Maybe i need to call delete on the socket as well? who knows
 
