@@ -10,6 +10,7 @@ var Player = require('../models/player');
 var Server = require('../models/server');
 var Mix = require('../models/mix');
 var matchmaker = require('./matchmaker');
+var dispatchListener = require('./dispatchlistener');
 
 module.exports = function(app) {
   var io = app.io;
@@ -27,8 +28,8 @@ module.exports = function(app) {
   Server.find({}, function(err, servers) {
     if (err) throw err;
     state.servers = servers;
-    console.log(servers);
   });
+
 
   // Express session authorization
 
@@ -352,15 +353,26 @@ module.exports = function(app) {
       });
 
     });
-
-    
-
-
   };
 
 
-  // Helpers
 
+  /**
+   * Dispatch Listener Events
+   */
+
+  dispatchListener.on('!gameover', function (data) {
+    var servers = _.where(state.servers, {ip: data.ip});
+    if (servers.length > 0) {
+      servers[0].status = 'available';
+      matchMake();
+    }
+  });
+
+
+  /**
+   * Helpers
+   */
 
 
 };

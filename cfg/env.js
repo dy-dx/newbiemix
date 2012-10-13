@@ -1,7 +1,8 @@
 var env = module.exports = {
   node_env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT, 10) || 8003,
-  mongo_url: process.env.MONGOHQ_URL || 'mongodb://localhost/newbiemix'
+  mongo_url: process.env.MONGOHQ_URL || 'mongodb://localhost/newbiemix',
+  dispatch_port: process.env.DISPATCH_PORT || 27030
 };
 
 env.development = env.node_env === 'development';
