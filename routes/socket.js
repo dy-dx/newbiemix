@@ -175,25 +175,22 @@ module.exports = function(app) {
       // You should probable make a removeFromQueue() function or something
 
       var queueType = user.rank + 'queue';
+      user.added = false;
 
       for (var i=0, len=state[queueType].length; i<len; ++i) {
         if (state[queueType][i]._id === user._id) {
 
           socket.broadcast.emit('queue:remove', {
             rank: user.rank,
-            queuePos: i,
-            _id: user._id,
-            classes: user.classes,
-            name: user.name,
-            status: user.status
+            queuePos: i
           });
 
           state[queueType].splice(i,1);
+          return callback(true);
           break; //Break because you spliced it
         }
       }
-      user.added = false;
-      callback(true);
+      callback(false);
     });
 
 
@@ -230,11 +227,7 @@ module.exports = function(app) {
 
             socket.broadcast.emit('queue:remove', {
               rank: user.rank,
-              queuePos: i,
-              _id: user._id,
-              classes: user.classes,
-              name: user.name,
-              status: user.status
+              queuePos: i
             });
 
             state[queueType].splice(i,1);
@@ -289,6 +282,10 @@ module.exports = function(app) {
         if (state.coachqueue[i]._id === coach._id) {
           state.coachqueue.splice(i,1);
         }
+        io.sockets.emit('queue:remove', {
+          rank: 'coach',
+          queuePos: i
+        });
         // Break because you spliced it
         break;
       }
@@ -307,6 +304,10 @@ module.exports = function(app) {
         if (state.newbiequeue[i]._id === newbie._id) {
           state.newbiequeue.splice(i,1);
         }
+        io.sockets.emit('queue:remove', {
+          rank: 'newbie',
+          queuePos: i
+        });
         // Break because you spliced it
         break;
       }

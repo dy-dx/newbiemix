@@ -30,12 +30,14 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
       // Remove from queue
       socket.emit('queue:remove', null, function(response) {
         if (!response) {
-          alert('Something went wrong.');
+          // alert('Something went wrong.');
+          return;
         }
-        updateAddedState(false);
-        $scope.queuePos = null;
         $scope.userCounts[$scope.rank] -= 1;
       });
+      updateAddedState(false);
+      $scope.queuePos = null;
+
     } else {
       // Add to queue
       socket.emit('queue:add', $scope.classes, function(response) {
@@ -89,8 +91,8 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
 
   socket.on('match:join', function(data) {
     
+    updateAddedState(false);
     $location.url('/mix/' + data.mixId);
-    
 
   });
 
