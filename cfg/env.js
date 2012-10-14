@@ -21,7 +21,7 @@ if (env.development) {
     channels: ['#etc', '#whatever']
   };
 } else {
-  env.hostname = 'http://www.newbiemix.com';
+  env.hostname = 'http://newbiemix.com';
 
   // env.facebook_app_id = 'etc';
   env.secrets = {
