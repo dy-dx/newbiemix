@@ -1,3 +1,7 @@
+[ng-cloak],
+.ng-cloak {
+  display: none;
+}
 body {
   background: #c7ced1 url("/img/noise.png") repeat;
 }

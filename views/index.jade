@@ -11,9 +11,9 @@ block body
           //-   a(href='/about') About
         - if (loggedIn)
           ul.nav(ui-sortable, ng-model='classes')
-            li.class-icon(ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected')
+            li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected')
               | {{c.name}}
-          button.add-up.btn.btn-large(class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
+          button.add-up.btn.btn-large(ng-cloak, ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
           //- Status updates:
           .btn-group.pull-right
             a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
@@ -28,7 +28,7 @@ block body
               li.divider
               li
                 a(href='/logout/', target='_self') Sign Out
-          .user-counts.pull-right(style='margin-right: 15px;')
+          .user-counts.pull-right(ng-cloak, style='margin-right: 15px;')
             | users: {{userCounts.users}}<br />
             | noobs: {{userCounts.newbie}}<br />
             | coaches: {{userCounts.coach}}<br />
@@ -43,7 +43,7 @@ block body
             span#steamlogin
               a(href='/auth/steam', target='_self')
                 img(src='/img/sits_small.png')
-  #loading(ng-cloak, ng-show='loading')
+  #loading(ng-show='loading')
     .alert
       | Loading...
   //- Main Content

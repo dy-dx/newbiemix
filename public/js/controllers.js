@@ -13,7 +13,8 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
   $rootScope.$on('$routeChangeSuccess', function() {
     $scope.loading = false;
   });
-
+  // This is a hack.
+  $scope.buttonStyle = {display:'none'};
 
   /**
    * Adding to queue
@@ -23,6 +24,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
     $scope.added = added;
     $scope.buttonText = added ? 'Remove' : 'Add Up';
     $scope.buttonClass = added ? 'btn-danger' : 'btn-success';
+    $scope.buttonStyle = {};
   };
 
   $scope.addOrRemove = function() {
