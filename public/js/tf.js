@@ -413,8 +413,8 @@ var tf = {};
         ws.json.send(data);
 
       // Disconnect after 15 minutes of idling; refresh after 2 hours
-      if (now - ws.lastActionAt > 900000) ws.disconnect();
-      if (now - ws.lastActionAt > 7200000) location.reload();
+      // if (now - ws.lastActionAt > 900000) ws.disconnect();
+      // if (now - ws.lastActionAt > 7200000) location.reload();
       if (!heartbeat) ws.lastActionAt = now;
     };
 
