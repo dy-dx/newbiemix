@@ -10,8 +10,12 @@ block body
           //- li(class='about', ng-class='{active:path()=="/about"}')
           //-   a(href='/about') About
         - if (loggedIn)
-          ul.nav(ui-sortable, ng-model='classes')
-            li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected')
+          .classpicker-description
+            span.pull-left &larr;favorite
+            span dbl click to ban
+            span.pull-right least favorite&rarr;
+          ul.nav.classpicker(ui-sortable, ng-model='classes')
+            li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected', ng-style='getClassIcon(c)')
               | {{c.name}}
           button.add-up.btn.btn-large(ng-cloak, ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
           //- Status updates:
@@ -19,7 +23,7 @@ block body
             a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
               span#profilename
                 img(src='#{user.avatar}')
-                | #{user.name}
+                | &nbsp;#{user.name}
               span.caret
             ul.dropdown-menu
               li

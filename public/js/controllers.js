@@ -27,6 +27,10 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
     $scope.buttonStyle = {};
   };
 
+  $scope.getClassIcon = function(c) {
+     return { 'background-image': 'url("/img/icons/' + c.id + '.jpg")' };
+  };
+
   $scope.addOrRemove = function() {
     if ($scope.added) {
       // Remove from queue
