@@ -1,5 +1,16 @@
-.hero-unit
-  p
-    | Stuff
-  pre
-    | {{mix | json}}
+.row
+  .span12
+    .home-content
+      .mix-info
+        ul
+          li red guys
+          li(ng-repeat='player in mix.redteam')
+            img(ng-src="{{player.avatar}}")
+            span {{player.name}} ({{player.rank}})
+        ul
+          li blue guys
+          li(ng-repeat='player in mix.bluteam')
+            img(ng-src="{{player.avatar}}")
+            span {{player.name}} ({{player.rank}})
+      p connect {{mix.server.ip}}; password {{mix.server.password}}
+

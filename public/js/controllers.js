@@ -113,7 +113,7 @@ function MixCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
     .success(function(data, status, headers, config) {
       $scope.mix = data.mix;
 
-      var connect = 'steam://connect/' + $scope.mix.ip + '/' + $scope.mix.password;
+      var connect = 'steam://connect/' + $scope.mix.server.ip + '/' + $scope.mix.server.password;
       $window.location.href = connect;
     });
 

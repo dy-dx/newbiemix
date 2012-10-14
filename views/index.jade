@@ -23,7 +23,8 @@ block body
               span.caret
             ul.dropdown-menu
               li
-                a(href='#') Profile
+                a(href='#')
+                  del Profile
               li.divider
               li
                 a(href='/logout/', target='_self') Sign Out
@@ -33,7 +34,11 @@ block body
             | coaches: {{userCounts.coach}}<br />
             | queue pos: {{queuePos}}
         - else
-          a.brand(href='/') Newbie Mix
+          a.brand(href='/') Newbie Mix v0.
+            sup 0.
+              sup 0.
+                sup 0.
+                  sup 1
           .btn-group.pull-right
             span#steamlogin
               a(href='/auth/steam', target='_self')
@@ -42,8 +47,4 @@ block body
     .alert
       | Loading...
   //- Main Content
-  .container
-    .row
-      .span3
-      .span9(ng-view)
-        //- content
+  .container(ng-view)
