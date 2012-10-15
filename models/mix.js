@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
   // secrets = env.secrets;
 
 var mixSchema = new mongoose.Schema({
-  _id: String,
+  _id: { type: String, required: true },
   // redteam: { type: Array, required: true },
   // bluteam: { type: Array, required: true },
   redteam: [{

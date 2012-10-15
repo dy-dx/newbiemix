@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var Player = require('../models/player');
 var Server = require('../models/server');
 var Mix = require('../models/mix');
+var Counter = require('../models/counter');
 var matchmaker = require('./matchmaker');
 var dispatchListener = require('./dispatchlistener');
 
@@ -272,32 +273,43 @@ module.exports = function(app) {
     availableServers[0].status = 'in-game';
 
     // Create new "mix" document, save to db
-
-    var mixId = '' + Date.now();
-    // I DON'T KNOW WHY I HAVE TO COPY THE SERVER OBJ
-    //  BUT IT DOESN'T WORK UNLESS I DO
-    var server = _.clone(availableServers[0]);
-    var newMix = new Mix({
-      _id: mixId,
-      redteam: redteam,
-      bluteam: bluteam,
-      server: server,
-      updated: new Date()
-    });
-    newMix.save(function(err) {
-      if (err) {
+    // Get mixId
+    Counter.findOneAndUpdate({ "counter" : "mixes" },
+                             { $inc: {next:1} },
+                             function(err, mixCounter) {
+      if (err || !mixCounter) {
         console.log(err);
         // TODO: Handle an err here
+        return;
       }
+      var mixId = mixCounter.next.toString();
 
-      chosenPlayers.forEach(function(player, index) {
-        state.users[player._id].added = false;
-        io.sockets.socket(player.socket.id).emit('match:join', {
-          mixId: mixId
+      // I DON'T KNOW WHY I HAVE TO COPY THE SERVER OBJ
+      //  BUT IT DOESN'T WORK UNLESS I DO
+      var server = _.clone(availableServers[0]);
+      var newMix = new Mix({
+        _id: mixId,
+        redteam: redteam,
+        bluteam: bluteam,
+        server: server,
+        updated: new Date()
+      });
+      newMix.save(function(err) {
+        if (err) {
+          console.log(err);
+          // TODO: Handle an err here
+        }
+
+        chosenPlayers.forEach(function(player, index) {
+          state.users[player._id].added = false;
+          io.sockets.socket(player.socket.id).emit('match:join', {
+            mixId: mixId
+          });
         });
       });
 
-    });
+    }); // End Counter.findOneAndUpdate()
+
   };
 
 
