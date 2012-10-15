@@ -318,7 +318,7 @@ module.exports = function(app) {
       if (redteam.length === 6) return bluteam.push(newbie);
       var c = newbie.class;
       var limit = 2;
-      if (c === 'S') limit = 4;
+      if (c === 'scout') limit = 4;
       if ( _.where(redteam, {class: c}).length === limit ) {
         bluteam.push(newbie);
       } else {
