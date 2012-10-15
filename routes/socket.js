@@ -243,7 +243,7 @@ module.exports = function(app) {
 
     coaches.forEach(function(coach, index) {
 
-      removeFromQueue(coach, 'coach');
+      removeFromQueue(coach, 'coachqueue');
 
       // Push to team
       if (redteam.length > bluteam.length) {
@@ -255,7 +255,7 @@ module.exports = function(app) {
 
     newbies.forEach(function(newbie, index) {
       
-      removeFromQueue(newbie, 'newbie');
+      removeFromQueue(newbie, 'newbiequeue');
 
       // Push to team
       if (redteam.length === 6) return bluteam.push(newbie);
