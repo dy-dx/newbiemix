@@ -15,4 +15,6 @@
               a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
                 img(ng-src="{{player.avatar}}")
                 span &nbsp;{{player.name}} - {{player.class}} - {{player.rank}}
-      p connect {{mix.server.ip}}; password {{mix.server.password}}
+        .input-append.connect-string
+          input(readonly, type='text', onmouseover='this.select();', value='connect {{mix.server.ip}}; password {{mix.server.password}}')
+          a.btn.btn-primary(href='steam://connect/{{mix.server.ip}}/{{mix.server.password}}') Connect to Server
