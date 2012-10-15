@@ -34,13 +34,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
   $scope.addOrRemove = function() {
     if ($scope.added) {
       // Remove from queue
-      socket.emit('queue:remove', null, function(response) {
-        if (!response) {
-          // alert('Something went wrong.');
-          return;
-        }
-        $scope.userCounts[$scope.rank] -= 1;
-      });
+      socket.emit('queue:remove');
       updateAddedState(false);
       $scope.queuePos = null;
 

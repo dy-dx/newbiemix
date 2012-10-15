@@ -147,14 +147,8 @@ module.exports = function(app) {
       });
 
       // If user is already in a queue, remove from queue. Then add to queue.
-      // You should probable make a removeFromQueue() function or something
       var queueType = user.rank + 'queue';
-      for (var i=0, len=state[queueType].length; i<len; ++i) {
-        if (state[queueType][i]._id === user._id) {
-          state[queueType].splice(i,1);
-          break;
-        }
-      }
+      removeFromQueue(user, queueType);
       state[queueType].push(user);
       user.added = true;
 
@@ -172,27 +166,8 @@ module.exports = function(app) {
     });
 
 
-    socket.on('queue:remove', function(dummy, callback) {
-      // If user is already in a queue, remove from queue.
-      // You should probable make a removeFromQueue() function or something
-
-      var queueType = user.rank + 'queue';
-      user.added = false;
-
-      for (var i=0, len=state[queueType].length; i<len; ++i) {
-        if (state[queueType][i]._id === user._id) {
-
-          socket.broadcast.emit('queue:remove', {
-            rank: user.rank,
-            queuePos: i
-          });
-
-          state[queueType].splice(i,1);
-          return callback(true);
-          break; //Break because you spliced it
-        }
-      }
-      callback(false);
+    socket.on('queue:remove', function() {
+      removeFromQueue(user);
     });
 
 
@@ -221,21 +196,9 @@ module.exports = function(app) {
       user.status = 'idle';
       user.timeoutId = setTimeout(function() {
         // Remove user from queue and users obj
-        // You should probably make a removeFromQueue() function or something
-        var queueType = user.rank + 'queue';
+        
+        removeFromQueue(user);
 
-        for (var i=0, len=state[queueType].length; i<len; ++i) {
-          if (state[queueType][i]._id === user._id) {
-
-            socket.broadcast.emit('queue:remove', {
-              rank: user.rank,
-              queuePos: i
-            });
-
-            state[queueType].splice(i,1);
-            break; //Break because you spliced it
-          }
-        }
         console.log('Deleting user for real: ' + user.name);
         delete(state.users[user._id]);
         // Maybe i need to call delete on the socket as well? who knows
@@ -279,18 +242,7 @@ module.exports = function(app) {
 
     coaches.forEach(function(coach, index) {
 
-      // Remove from state.coachqueue
-      for (var i=0, len=state.coachqueue.length; i<len; i++) {
-        if (state.coachqueue[i]._id === coach._id) {
-          state.coachqueue.splice(i,1);
-        }
-        io.sockets.emit('queue:remove', {
-          rank: 'coach',
-          queuePos: i
-        });
-        // Break because you spliced it
-        break;
-      }
+      removeFromQueue(coach, 'coach');
 
       // Push to team
       if (redteam.length > bluteam.length) {
@@ -301,18 +253,8 @@ module.exports = function(app) {
     });
 
     newbies.forEach(function(newbie, index) {
-      // Remove from state.newbiequeue
-      for (var i=0, len=state.newbiequeue.length; i<len; i++) {
-        if (state.newbiequeue[i]._id === newbie._id) {
-          state.newbiequeue.splice(i,1);
-        }
-        io.sockets.emit('queue:remove', {
-          rank: 'newbie',
-          queuePos: i
-        });
-        // Break because you spliced it
-        break;
-      }
+      
+      removeFromQueue(newbie, 'newbie');
 
       // Push to team
       if (redteam.length === 6) return bluteam.push(newbie);
@@ -376,6 +318,25 @@ module.exports = function(app) {
   /**
    * Helpers
    */
+
+  var removeFromQueue = function(user, queueType) {
+    if (!queueType) { queueType = user.rank + 'queue'; }
+    user.added = false;
+
+    for (var i=0, len=state[queueType].length; i<len; ++i) {
+      if (state[queueType][i]._id === user._id) {
+        state[queueType].splice(i,1);
+
+        io.sockets.emit('queue:remove', {
+          rank: user.rank,
+          queuePos: i
+        });
+
+        return i;
+      }
+    }
+    return false;
+  };
 
 
 };
