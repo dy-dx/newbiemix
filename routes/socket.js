@@ -34,6 +34,10 @@ module.exports = function(app) {
   // Express session authorization
 
   app.io.set('authorization', function(data, fn) {
+    if (!data.headers.cookie) {
+      data.NOT_LOGGED_IN = true;
+      return fn(null, true);
+    }
     var cookies = parseCookie(data.headers.cookie);
     var sid = cookies['connect.sid'];
     app.store.get(sid, function(err, sess){
