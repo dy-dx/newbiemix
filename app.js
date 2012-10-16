@@ -54,7 +54,6 @@ everyauth.steam
           player.name = steamInfo.personaname;
           player.avatar = steamInfo.avatar;
           player.updated = new Date();
-          player.status = 'active'; // I forgot what this was for?
           if (steamInfo.loccountrycode) {
             player.country = steamInfo.loccountrycode;
           }
@@ -78,8 +77,8 @@ everyauth.steam
             name: steamInfo.personaname,
             avatar: steamInfo.avatar,
             updated: new Date(),
-            status: 'active', // I forget what this was for?
-            rank: 'newbie'
+            rank: 'newbie',
+            permissions: 1
           });
           if (steamInfo.loccountrycode) {
             newPlayer.country = steamInfo.loccountrycode;
@@ -161,6 +160,7 @@ app.configure('production', function(){
 app.get('/', routes.index);
 app.get('/partials/:name', routes.partials);
 app.get('/api/mixes/:id', routes.mixes);
+app.get('/api/pages/:id', routes.pages);
 
 // redirect all others to the index (HTML5 history)
 app.get('*', routes.index);

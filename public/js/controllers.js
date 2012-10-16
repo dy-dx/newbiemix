@@ -99,13 +99,17 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
 }
 
 
-function HomeCtrl($scope, $window, $rootScope, socket) {
-
+function PageCtrl($scope, $window, $rootScope, $routeParams, $http) {
+  $http.get('/api/pages/' + ($routeParams.id || 'welcome') )
+    .success(function(data, status, headers, config) {
+      $scope.page = data.page;
+      $scope.pages = data.pages;
+    });
 
 }
 
 
-function MixCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
+function MixCtrl($scope, $window, $rootScope, $routeParams, $http) {
 
   $scope.mix = {};
 

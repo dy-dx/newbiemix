@@ -12,10 +12,10 @@ body{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA
 .class-icon{-webkit-border-radius:2px;border-radius:2px}
 .class-icon-deselected{opacity:.4;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=40);filter:alpha(opacity=40)}
 .steamlogin{margin-top:3px}
-.home-sidenav{background-color:rgba(255,255,255,0.82);-webkit-border-radius:6px;border-radius:6px;-webkit-box-shadow:0 1px 4px rgba(0,0,0,0.065);box-shadow:0 1px 4px rgba(0,0,0,0.065);}
-.home-sidenav li a{border:1px solid #e5e5e5;padding:8px 14px;margin:0 -15px -1px -15px}
-.home-sidenav li:first-child a{-webkit-border-radius:6px 6px 0 0;border-radius:6px 6px 0 0}
-.home-sidenav li:last-child a{-webkit-border-radius:0 0 6px 6px;border-radius:0 0 6px 6px}
+.sidenav{background-color:rgba(255,255,255,0.82);-webkit-border-radius:6px;border-radius:6px;-webkit-box-shadow:0 1px 4px rgba(0,0,0,0.065);box-shadow:0 1px 4px rgba(0,0,0,0.065);}
+.sidenav li a{border:1px solid #e5e5e5;padding:8px 14px;margin:0 -15px -1px -15px}
+.sidenav li:first-child a{-webkit-border-radius:6px 6px 0 0;border-radius:6px 6px 0 0}
+.sidenav li:last-child a{-webkit-border-radius:0 0 6px 6px;border-radius:0 0 6px 6px}
 .content{padding:24px;min-height:200px;margin-bottom:20px;background-color:rgba(255,255,255,0.82);border:1px solid #e5e5e5;-webkit-border-radius:6px;border-radius:6px;-webkit-box-shadow:0 1px 4px rgba(0,0,0,0.065);box-shadow:0 1px 4px rgba(0,0,0,0.065)}
 .mix-info,.mix-teams{margin:10px auto 40px;width:800px;text-align:left;}
 .mix-info ul,.mix-teams ul{background-color:#fff;border:1px solid #808080;list-style:none;display:inline}

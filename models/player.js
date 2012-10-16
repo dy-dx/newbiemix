@@ -16,7 +16,8 @@ var playerSchema = new mongoose.Schema({
       {name: 'Roamer', id: 'rsoldier', selected: true},
       {name: 'Medic', id: 'medic', selected: true},
       {name: 'Demoman', id: 'demoman', selected: true}
-    ]} // Do I need to validate this?
+    ]}, // Do I need to validate this?
+  permissions: { type: Number, required: true } // 1: user, 2: moderator, 5: admin, 10: superadmin
 });
 
 var steamIdToNumericId = function(steamid) {

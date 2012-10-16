@@ -6,8 +6,12 @@ var app = angular.module('myApp', ['myApp.services', 'ui']).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider
       .when('/', {
-        templateUrl: 'partials/home',
-        controller: HomeCtrl
+        templateUrl: 'partials/page',
+        controller: PageCtrl
+      })
+      .when('/page/:id', {
+        templateUrl: 'partials/page',
+        controller: PageCtrl
       })
       .when('/mix/:id', {
         templateUrl: 'partials/mix',

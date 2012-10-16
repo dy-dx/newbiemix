@@ -1,0 +1,7 @@
+.row
+  .span9
+    .content.nomove(ng-bind-html-unsafe="page.text")
+  .span3
+    .sidenav.nomove
+      ul.nav.nav-list
+        li(ng-repeat='page in pages'): a(href='/page/{{page.id}}') {{page.title}}
