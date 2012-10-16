@@ -288,16 +288,6 @@ var tf = {};
         .fadeIn();
   };
 
-  tf.Player.prototype.hug = function hug(otherPlayer) {
-    var pos = otherPlayer.pos.minus(this.pos).times(0.5).plus(this.pos);
-    new tf.IdleSprite({ name: 'heart', pos: pos.plus({ x: 0, y: -80 }), cycles: 2 });
-  };
-
-  tf.Player.prototype.near = function near(pos) {
-    return this.pos.minus(pos).length() < 150;
-  };
-
-
 
   ////// Let's Begin //////
   $(function() {
@@ -354,11 +344,6 @@ var tf = {};
         tf.Player.prototype[data.method].apply(player, arguments);
       }
     });
-    tf.near = function near(pos) {
-      return _.find(tf.players, function(player) {
-        return player !== me && player.near(pos);
-      });
-    };
 
 
     ////// Helper Methods //////
@@ -435,18 +420,9 @@ var tf = {};
       .click(function(e) { // move on click
         if (e.pageX === undefined || e.pageY === undefined) return;
         var pos = { x: e.pageX, y: e.pageY };
-        var other = tf.near(pos);
 
-        me.goTo(pos, function() {
-          // if (other && me.near(other.pos)) {
-          //   me.hug(other);
-          //   tf.send({
-          //     obj: me,
-          //     method: 'hug',
-          //     arguments: [ other ]
-          //   });
-          // }
-        });
+        me.goTo(pos);
+
         tf.send({
           obj: me,
           method: 'goTo',
@@ -454,25 +430,10 @@ var tf = {};
         });
       });
 
-    // ios
-    // var moved = false;
-    // $('body')
-    //   .bind('touchmove', function(e) { moved = true; })
-    //   .bind('touchend', function(e) { // move on touch
-    //     if (moved) return moved = false;
-    //     var t = e.originalEvent.changedTouches.item(0);
-    //     me.goTo(new tf.Vector(t.pageX, t.pageY));
-    //   })
-    //   .on('click', '.slide', function() {
-    //     var $this = $(this);
-    //     var id = $(this).attr('id');
-    //     $this.removeAttr('id');
-    //     location.hash = '#' + id;
-    //     $this.attr('id', id);
-    //   });
 
     // chat
-    var speakTimeout, $text = $('<textarea>')
+    var speakTimeout;
+    var $text = $('<textarea>')
       .appendTo($('<div class="textarea-container">')
       .appendTo(me.div))
       .bind('keyup', function(e) {
@@ -480,6 +441,7 @@ var tf = {};
         switch (e.keyCode) {
           case 13:
             $text.val('');
+            $text.blur();
             return false;
           default:
             me.speak(text);
@@ -500,29 +462,9 @@ var tf = {};
         }
       }).focus();
     $(document).keylisten(function(e) {
-      var slide = Number(location.hash.replace('#slide-', ''));
-      switch (e.keyName) {
-        case 'alt+right':
-          return tf.goTo('#slide-' + (slide+1));
-        case 'alt+left':
-          return tf.goTo('#slide-' + (slide-1));
-      }
-
-      if (e.altKey || e.ctrlKey || e.metaKey) return true;
-      switch (e.keyName) {
-        case 'meta':
-        case 'meta+ctrl':
-        case 'ctrl':
-        case 'alt':
-        case 'shift':
-        case 'up':
-        case 'down':
-        case 'left':
-        case 'right':
-          return;
-        default:
-          $text.focus();
-      }
+      // Press 'y' to chat
+      if (e.keyCode === 89)
+        $text.focus();
     });
 
 
