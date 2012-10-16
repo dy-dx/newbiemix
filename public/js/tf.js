@@ -452,52 +452,6 @@ var tf = {};
           method: 'goTo',
           arguments: [ pos ]
         });
-      })
-      .keydown(function(e) {
-        if ($(e.target).is(':input')) return true;
-        if (e.altKey) return true;
-        var d = (function() {
-          switch (e.keyCode) {
-            case 37: // left
-              return new tf.Vector(-5000, 0);
-            case 38: // up
-              return new tf.Vector(0, -5000);
-            case 39: // right
-              return new tf.Vector(+5000, 0);
-            case 40: // down
-              return new tf.Vector(0, +5000);
-          }
-        })();
-        if (d) {
-          if (me.keyNav) return false;
-          var pos = me.getPosition().plus(d);
-          me.goTo(pos);
-          tf.send({
-            obj: me,
-            method: 'goTo',
-            arguments: [ pos ]
-          });
-          me.keyNav = true;
-          return false;
-        }
-      })
-      .keyup(function(e) {
-        if ($(e.target).is(':input')) return true;
-        if (e.altKey) return true;
-        switch (e.keyCode) {
-          case 37: // left
-          case 38: // up
-          case 39: // right
-          case 40: // down
-            me.goTo(me.getPosition(), 1);
-            tf.send({
-              obj: me,
-              method: 'goTo',
-              arguments: [ me.getPosition(), 1 ]
-            });
-            me.keyNav = false;
-            return false;
-        }
       });
 
     // ios
