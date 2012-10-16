@@ -1,3 +1,7 @@
+/**
+ * This file mostly copied from github.com/nko3/website/blob/master/public/javascripts/watchmaker.js
+ */
+
 var tf = {};
 (function(tf) {
   ////// Vector //////
