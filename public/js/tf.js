@@ -98,7 +98,7 @@ var tf = {};
         top: this.pos.y,
         width: this.size.x,
         height: this.size.y,
-        'z-index': Math.floor(this.pos.y),
+        'z-index': Math.floor(this.pos.y-2000),
         // transform: Modernizr.csstransforms ? 'translate(' + offset.toString() + ')' : null,
 
         transform: 'translate(' + offset.toString() + ')',
@@ -258,7 +258,7 @@ var tf = {};
               break;
             case 'top':
               self.pos.y = now;
-              self.div.css('z-index', Math.floor(now));
+              self.div.css('z-index', Math.floor(now-2000));
               break;
           }
         },
