@@ -305,8 +305,9 @@ var tf = {};
 
     // Random sprite placement?? not really
     $(window).load(function() {
-      var el = $(location.hash);
-      if (el.length === 0) el = $('body');
+      // var el = $(location.hash);
+      // if (el.length === 0) el = $('body');
+      var el = $('#container');
       tf.warpTo(el);
     });
 
@@ -351,8 +352,8 @@ var tf = {};
       var page = $(selector);
       var pos = page.position();
 
-      return new tf.Vector(pos.left + 0 + Math.random() * (page.width()-60),
-                            pos.top + 150 + Math.random() * (page.height()-60));
+      return new tf.Vector(pos.left + 210 + Math.random() * (page.width() + 290),
+                            pos.top + 60 + Math.random() * (page.height() + 90 ));
     };
 
     tf.warpTo = function (selector) {

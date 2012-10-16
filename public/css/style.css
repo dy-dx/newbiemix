@@ -7,6 +7,9 @@ body {
 }
 #container {
   position: relative;
+  margin: 0 auto;
+  width: 940px;
+  height: 100%;
   -webkit-backface-visibility: hidden;
 }
 #loading {
@@ -18,8 +21,8 @@ body {
   position: relative;
   display: inline;
   padding: 8px 14px;
-  left: 50%;
-  margin-left: -46px;
+  left: 470px;
+  margin-left: -47px;
 }
 .caret {
   margin: 13px 0 0 1px !important;
