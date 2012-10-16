@@ -424,9 +424,12 @@ var tf = {};
     $(window)
       .resize(_.debounce(function() { me.resetOrigin(); }, 300))
       .click(function(e) { // move on click
-        if (e.pageX === undefined || e.pageY === undefined) return;
-        var pos = { x: e.pageX, y: e.pageY };
 
+        // Check if target has an ancestor with class "nomove"
+        if( $(e.target).closest('.nomove').length ) return;
+        if (e.pageX === undefined || e.pageY === undefined) return;
+
+        var pos = { x: e.pageX, y: e.pageY };
         me.goTo(pos);
 
         tf.send({
