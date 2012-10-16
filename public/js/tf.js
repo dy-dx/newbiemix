@@ -198,9 +198,10 @@ var tf = {};
   };
 
   // tf.Player.prototype.frameOffset = { w: 0, e: 2, s: 4, n: 6, idle: 8 };
-  tf.Player.prototype.frameOffset = { w: 0, e: 0, idle: 5 };
+  tf.Player.prototype.frameOffset = { w: 2, e: 0, idle: 5 };
 
-  tf.Player.prototype.animateFrames = function(state) {
+  // tf.Player.prototype.animateFrames = function(state) {
+  tf.Player.prototype.animateFrames = function(state, direction) {
     var self = this;
 
     clearTimeout(this.animateTimeout);
@@ -208,7 +209,13 @@ var tf = {};
 
     var frames = this.state ==='idle' ? this.idleFrames : 2;
     this.frame = ((this.frame + 1) % frames);
-    this.div.css('background-position', (-(this.frameOffset[this.state]+this.frame) * this.size.x) + 'px 0px');
+
+    if (direction) {
+      // This is a hack to change the idle frame based on direction
+      this.div.css('background-position', (-(this.frameOffset[direction]+this.frame) * this.size.x) + 'px 0px');
+    } else {
+      this.div.css('background-position', (-(this.frameOffset[this.state]+this.frame) * this.size.x) + 'px 0px');
+    }
 
     if (this.bubble && this.bubble.is(':visible')) {
       this.bubbleFrame = (this.bubbleFrame + 1) % 3;
@@ -216,7 +223,8 @@ var tf = {};
         .removeClass('frame-0 frame-1 frame-2')
         .addClass('frame-' + this.bubbleFrame);
     }
-
+    // STOP ANIMATING YOURSELF!
+    if (this.state === 'idle') return;
     this.animateTimeout = setTimeout(function() { self.animateFrames(); }, 150);
   };
 
@@ -233,10 +241,6 @@ var tf = {};
 
     this.animateFrames(delta.cardinalDirection());
     var offset = new tf.Vector(this.size.x * -0.5, -this.size.y + 20);
-    this.div
-      .css({ //holy shit refactor this
-        transform: 'translate(' + offset.toString() + ') scale(' + (delta.cardinalDirection() === 'e' ? 1 : -1) + ', 1)'
-      });
 
     if (duration && duration > 0)
       this.div.stop();
@@ -261,7 +265,8 @@ var tf = {};
         complete: function() {
           self.pos = pos;
           // z-index?
-          self.animateFrames('idle');
+          // self.animateFrames('idle');
+          self.animateFrames('idle', delta.cardinalDirection());
           if (callback) callback();
         }
       });
