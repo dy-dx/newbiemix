@@ -13,6 +13,7 @@
     "hiredis": "0.1.14",
     "jade": ">= 0.0.1",
     "mongoose": "3.2.1",
+    "nib": "0.8.x",
     "request": ">= 2.x.x",
     "socket.io": "0.9.x",
     "stylus": ">= 0.0.1",

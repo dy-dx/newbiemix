@@ -7,6 +7,8 @@ var express = require('express'),
   util = require('util'),
   mongoose = require('mongoose'),
   everyauth = require('everyauth'),
+  stylus = require('stylus'),
+  nib = require('nib'),
   env = require('./cfg/env'),
   port = env.port,
   secrets = env.secrets,
@@ -109,6 +111,13 @@ everyauth.steam
 
 // Configuration
 
+function compile(str, path) {
+  return stylus(str)
+    .set('filename', path)
+    .set('compress', true)
+    .use(nib());
+}
+
 app.configure(function(){
   app.use(express.logger('dev'));
   app.set('views', __dirname + '/views');
@@ -134,7 +143,7 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(everyauth.middleware());
-  app.use(require('stylus').middleware({ src: __dirname + '/public' }));
+  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }));
   app.use(express.static(__dirname + '/public'));
   app.use(app.router);
 });

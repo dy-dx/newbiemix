@@ -17,7 +17,7 @@ block body
           ul.nav.classpicker(ui-sortable, ng-model='classes')
             li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected', ng-style='getClassIcon(c)')
               | {{c.name}}
-          button.add-up.btn.btn-large(ng-cloak, ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
+          button.add-up.btn(ng-cloak, ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
           //- Status updates:
           .btn-group.pull-right
             a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
@@ -44,7 +44,7 @@ block body
                 sup 0.
                   sup 1
           .btn-group.pull-right
-            span#steamlogin
+            .steamlogin
               a(href='/auth/steam', target='_self')
                 img(src='/img/sits_small.png')
   #loading(ng-show='loading')
