@@ -117,6 +117,7 @@ function compile(str, path) {
 }
 
 app.configure(function(){
+  app.use(express.favicon('public/img/favicon.ico'));
   app.use(express.logger('dev'));
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
