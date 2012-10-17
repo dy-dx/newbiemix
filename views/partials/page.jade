@@ -4,4 +4,5 @@
   .span3
     .sidenav.nomove
       ul.nav.nav-list
-        li(ng-repeat='page in pages'): a(href='/page/{{page.slug}}') {{page.title}}
+        li(ng-repeat='page in pages', ng-class='{active: isActive($index)}')
+          a(href='/page/{{page.slug}}') {{page.title}}

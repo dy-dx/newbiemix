@@ -100,12 +100,19 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
 
 
 function PageCtrl($scope, $window, $rootScope, $routeParams, $http) {
-  $http.get('/api/pages/' + ($routeParams.id || 'welcome') )
+  if (!$rootScope.pages) {
+    $http.get('/api/pages')
     .success(function(data, status, headers, config) {
-      $scope.page = data.page;
-      $scope.pages = data.pages;
+      $rootScope.pages = data.pages;
     });
-
+  }
+  $http.get('/api/page/' + ($routeParams.id || 'welcome') )
+    .success(function(data, status, headers, config) {
+      $rootScope.page = data.page;
+    });
+  $scope.isActive = function(index) {
+    return $rootScope.page.slug === $rootScope.pages[index].slug;
+  };
 }
 
 

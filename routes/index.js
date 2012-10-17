@@ -21,9 +21,7 @@ module.exports = function(app) {
   require('./admin')(app);
 
 
-  app.get('*', function(req, res) {
-    res.send(404);
-  });
+  app.get('*', index);
 };
 
 
