@@ -1,54 +1,36 @@
-
 /*
- * GET home page.
+ * /routes/index.js
  */
 
-var Mix = require('../models/mix');
-var Page = require('../models/page');
+module.exports = function(app) {
 
-exports.index = function(req, res) {
-  res.render('index', {
-    loggedIn: req.loggedIn,
-    user: req.user
+  app.dynamicHelpers({
+    loggedIn: function(req, res) {
+      return req.loggedIn;
+    },
+    user: function(req, res) {
+      return req.user;
+    }
+  });
+
+  app.get('/', index);
+  app.get('/partials/:name', partials);
+
+
+  require('./api')(app);
+  require('./admin')(app);
+
+
+  app.get('*', function(req, res) {
+    res.send(404);
   });
 };
 
-exports.partials = function (req, res) {
+
+var index = function(req, res) {
+  res.render('index');
+};
+
+var partials = function (req, res) {
   res.render('partials/' + req.params.name);
-};
-
-exports.mixes = function (req, res) {
-  Mix.findById(req.params.id, function(err, mix) {
-    if (err) {
-      // TODO: Handle an err here
-      console.log(err);
-      return res.json(false);
-    }
-    return res.json({
-      mix: mix
-    });
-  });
-};
-
-exports.pages = function (req, res) {
-  Page.find({}).select('id title').exec(function(err, pages) {
-    if (err) {
-      // TODO: Handle an err here
-      console.log(err);
-      return res.json(false);
-    }
-    Page.findOne({id: req.params.id}, function(err, page) {
-      if (err) {
-        // TODO: Handle an err here
-        console.log(err);
-        return res.json(false);
-      }
-
-      return res.json({
-        page: page,
-        pages: pages
-      });
-
-    });
-  });
 };

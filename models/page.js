@@ -4,8 +4,8 @@ var mongoose = require('mongoose');
 //   secrets = env.secrets;
 
 var pageSchema = new mongoose.Schema({
-  // NOT _id!
-  id: { type: String, required: true },
+  slug: { type: String, required: true, unique: true, sparse: true },
+  order: { type: Number, required: true },
   title: { type: String, required: true },
   updated: Date,
   text: { type: String, required: true }

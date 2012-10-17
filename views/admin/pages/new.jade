@@ -1,0 +1,53 @@
+extends ../layout
+
+block body
+  .row
+    .span9
+      h2 Create new page
+      .well.well-large
+        .row
+          .span1 Order
+          .span2 Slug
+          .span3 Title
+        .controls.controls-row
+          input#order.span1(type='text')
+          input#slug.span2(type='text')
+          input#title.span3(type='text')
+        p
+          | Order must be an integer.
+          br
+          | Slug must be unique and should only contain lowercase letters and dashes.
+        textarea#textarea(style='width:94%; min-height:300px;')
+        .row
+          .span2
+            button#save.btn.btn-primary(type="button") Save
+  script(type="text/javascript")
+    $(document).ready(function() {
+      $('#textarea').wysihtml5();
+
+      $('#save').click(function() {
+
+        var order = parseInt($('#order').val());
+        var slug = $('#slug').val();
+        var title = $('#title').val();
+        var text = $('#textarea').val();
+
+        $.ajax({
+          url: '/admin/pages',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ page: {
+            order: order,
+            slug: slug,
+            title: title,
+            text: text
+          }})
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/pages';
+          }
+          alert('Something went wrong.');
+        });
+
+      });
+    });

@@ -1,0 +1,69 @@
+extends ../layout
+
+block body
+  .row
+    .span9
+      h2 Editing Page: #{page.title}
+      .well.well-large
+        .row
+          .span1 Order
+          .span2 Slug
+          .span3 Title
+        .controls.controls-row
+          input#order.span1(type='text', value='#{page.order}')
+          input#slug.span2(type='text', value='#{page.slug}')
+          input#title.span3(type='text', value='#{page.title}')
+        p
+          | Order must be an integer.
+          br
+          | Slug must be unique and should only contain lowercase letters and dashes.
+        textarea#textarea(style='width:94%; min-height:300px;')
+          | #{page.text}
+        .row
+          .span1
+            button#save.btn.btn-primary(type="button") Save
+          .span1
+            button#delete.btn.btn-danger(type="button") Delete
+  script(type="text/javascript")
+    $(document).ready(function() {
+      $('#textarea').wysihtml5();
+
+      $('#save').click(function() {
+
+        var order = parseInt($('#order').val());
+        var slug = $('#slug').val();
+        var title = $('#title').val();
+        var text = $('#textarea').val();
+
+        $.ajax({
+          url: '/admin/pages/#{page._id}',
+          type: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify({ page: {
+            order: order,
+            slug: slug,
+            title: title,
+            text: text
+          }})
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/pages';
+          }
+          alert('Something went wrong.');
+        });
+      });
+
+      $('#delete').click(function() {
+        if (!confirm("Are you sure you want to delete this page?")) return;
+
+        $.ajax({
+          url: '/admin/pages/#{page._id}',
+          type: 'DELETE'
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/pages';
+          }
+          alert('Something went wrong.');
+        });
+      });
+    });

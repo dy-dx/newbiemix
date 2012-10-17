@@ -1,0 +1,19 @@
+extends ../layout
+
+block body
+  .row
+    .span9
+      h2 Pages
+      .well.well-large
+        .row
+          .span1: strong Order
+          .span2: strong Slug
+          .span3: strong Title
+        - each page in pages
+          .row
+            .span1 #{page.order}
+            .span2 #{page.slug}
+            .span3 #{page.title}
+            .span1
+              a.btn(href="/admin/pages/#{page.id}/edit") Edit
+        a.btn.btn-primary(href='/admin/pages/new') Create New Page

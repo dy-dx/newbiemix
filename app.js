@@ -11,8 +11,7 @@ var express = require('express'),
   nib = require('nib'),
   env = require('./cfg/env'),
   port = env.port,
-  secrets = env.secrets,
-  routes = require('./routes');
+  secrets = env.secrets;
 mongoose.connect(env.mongo_url);
 
 var Player = require('./models/player');
@@ -156,15 +155,7 @@ app.configure('production', function(){
 });
 
 // Routes
-
-app.get('/', routes.index);
-app.get('/partials/:name', routes.partials);
-app.get('/api/mixes/:id', routes.mixes);
-app.get('/api/pages/:id', routes.pages);
-
-// redirect all others to the index (HTML5 history)
-app.get('*', routes.index);
-
+require('./routes')(app);
 
 // Hook Socket.io into Express
 var parseCookie = require('connect').utils.parseCookie;
