@@ -1,0 +1,49 @@
+extends ../layout
+
+block body
+  .row
+    .span12
+      h2 Add New Server
+      .well.well-large
+        .row
+          .span4: strong Name
+          .span3: strong Ip:Port
+          .span2: strong Password
+          .span1: strong Available
+        .controls.controls-row
+          input#name.span4(type='text')
+          input#ip.span3(type='text')
+          input#password.span2(type='text')
+          input#is-available.span1(type='checkbox')
+        p
+          | Ip:Port MUST be numerical.
+        .row
+          .span1
+            button#save.btn.btn-primary(type="button") Save
+  script(type="text/javascript")
+    $(document).ready(function() {
+      $('#save').click(function() {
+
+        var name = $('#name').val().trim();
+        var ip = $('#ip').val().trim();
+        var password = $('#password').val().trim();
+        var isAvailable = $('#is-available').is(":checked");
+
+        $.ajax({
+          url: '/admin/servers',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ server: {
+            name: name,
+            ip: ip,
+            password: password,
+            isAvailable: isAvailable
+          }})
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/servers';
+          }
+          alert('Something went wrong.');
+        });
+      });
+    });

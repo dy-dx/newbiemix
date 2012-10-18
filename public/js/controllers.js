@@ -46,7 +46,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
         }
         updateAddedState(true);
         $scope.queuePos = response;
-        $scope.userCounts[$scope.rank] += 1;
+        $scope.statusCounts[$scope.rank] += 1;
       });
     }
   };
@@ -59,6 +59,9 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
     $scope.rank = data.rank;
     $scope.classes = data.classes;
     updateAddedState(data.added);
+    if (typeof(data.queuepos) === 'number') {
+      $scope.queuePos = data.queuepos;
+    }
   });
 
 
@@ -66,16 +69,16 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
    * Status updates
    */
 
-  socket.on('status:userCounts', function(data) {
-    $scope.userCounts = data;
+  socket.on('status:counts', function(data) {
+    $scope.statusCounts = data;
   });
 
   socket.on('queue:add', function(data) {
-    $scope.userCounts[data.rank] += 1;
+    $scope.statusCounts[data.rank] += 1;
   });
 
   socket.on('queue:remove', function(data) {
-    $scope.userCounts[data.rank] -= 1;
+    $scope.statusCounts[data.rank] -= 1;
 
     if ($scope.queuePos && data.queuePos < $scope.queuePos) {
       $scope.queuePos -= 1;

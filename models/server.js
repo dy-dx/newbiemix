@@ -5,9 +5,9 @@ var mongoose = require('mongoose');
 
 var serverSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  ip: { type: String, required: true },
+  ip: { type: String, required: true, unique: true, sparse: true },
   password: { type: String, required: true },
-  status: { type: String, default: 'available' }
+  isAvailable: { type: Boolean, required: true }
 });
 
 var Server = mongoose.model('Server', serverSchema);

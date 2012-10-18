@@ -1,0 +1,68 @@
+extends ../layout
+
+block body
+  .row
+    .span12
+      h2 Editing Server: #{server.name}
+      .well.well-large
+        .row
+          .span4: strong Name
+          .span3: strong Ip:Port
+          .span2: strong Password
+          .span1: strong Available
+        .controls.controls-row
+          input#name.span4(type='text', value='#{server.name}')
+          input#ip.span3(type='text', value='#{server.ip}')
+          input#password.span2(type='text', value='#{server.password}')
+          - if (server.isAvailable)
+            input#is-available.span1(type='checkbox', checked='checked')
+          - else
+            input#is-available.span1(type='checkbox')
+        p
+          | Ip:Port MUST be numerical.
+        .row
+          .span1
+            button#save.btn.btn-primary(type="button") Save
+          .span1
+            button#delete.btn.btn-danger(type="button") Delete
+  script(type="text/javascript")
+    $(document).ready(function() {
+      $('#save').click(function() {
+
+        var name = $('#name').val().trim();
+        var ip = $('#ip').val().trim();
+        var password = $('#password').val().trim();
+        var isAvailable = $('#is-available').is(":checked");
+
+        $.ajax({
+          url: '/admin/servers/#{server._id}',
+          type: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify({ server: {
+            name: name,
+            ip: ip,
+            password: password,
+            isAvailable: isAvailable
+          }})
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/servers';
+          }
+          alert('Something went wrong.');
+        });
+      });
+
+      $('#delete').click(function() {
+        if (!confirm("Are you sure you want to delete this server?")) return;
+
+        $.ajax({
+          url: '/admin/servers/#{server._id}',
+          type: 'DELETE'
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/servers';
+          }
+          alert('Something went wrong.');
+        });
+      });
+    });

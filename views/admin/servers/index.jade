@@ -1,0 +1,21 @@
+extends ../layout
+
+block body
+  .row
+    .span12
+      h2 Servers
+      .well.well-large
+        .row
+          .span4: strong Name
+          .span3: strong Ip:Port
+          .span2: strong Password
+          .span1: strong isAvailable
+        - each server in servers
+          .row
+            .span4 #{server.name}
+            .span3 #{server.ip}
+            .span2 #{server.password}
+            .span1 #{server.isAvailable}
+            .span1
+              a.btn(href="/admin/servers/#{server._id}/edit") Edit
+        a.btn.btn-primary(href='/admin/servers/new') Add New Server

@@ -26,8 +26,11 @@ module.exports = function(app) {
 
   // Get list of servers, this is async but I'm gonna assume
   //  that it'll complete by the time I need the data
-  Server.find({}, function(err, servers) {
+  Server.find({ isAvailable: true }, function(err, servers) {
     if (err) throw err;
+    servers.forEach(function(server, index) {
+      server.isInUse = false;
+    });
     state.servers = servers;
   });
 
@@ -63,16 +66,26 @@ module.exports = function(app) {
     if (socket.handshake.NOT_LOGGED_IN) return;
 
     /**
-     * Initialization
+     * Initialization/Reconnection
      */
 
     var user = socket.handshake.session.auth.steam.user;
+    var queuePos;
     // If existing user in state, then take that one instead
     //  and clear timeout if that exists
     if (state.users[user._id]) {
       user = state.users[user._id];
       if (user.timeoutId) {
         clearTimeout(user.timeoutId);
+      }
+      // Check if in queue, get queue position
+      if (user.added) {
+        for (var i=0, len=state[user.rank+'queue'].length; i<len; i++) {
+          if (state[user.rank+'queue'][i]._id === user._id) {
+            queuePos = i;
+            break;
+          }
+        }
       }
     } else {
       // Else save user and user.socket in state.users Object
@@ -82,11 +95,12 @@ module.exports = function(app) {
     user.socket = socket;
     user.status = 'active';
     
-
+    // Send initialization info
     socket.emit('state:init', {
       rank: user.rank,
       classes: user.classes,
-      added: user.added
+      added: user.added,
+      queuepos: queuePos
     });
 
     console.log('A socket connected: ' + user.name);
@@ -161,7 +175,7 @@ module.exports = function(app) {
         status: user.status
       });
 
-      callback(state[queueType].length); // Player's queue position
+      callback(state[queueType].length - 1); // Player's queue position
 
       matchMake();
     });
@@ -207,19 +221,21 @@ module.exports = function(app) {
   // Status Updates
 
   setInterval(function() {
-    io.sockets.emit('status:userCounts', {
+    io.sockets.emit('status:counts', {
       newbie: state.newbiequeue.length,
       coach: state.coachqueue.length,
       // This is slow supposedly? Maybe just keep a count
-      users: Object.keys(state.users).length
+      users: Object.keys(state.users).length,
+      servers: state.servers.length,
+      freeservers: _.where(state.servers, {isInUse: false}).length
     });
-  }, 2000);
+  }, 3000);
 
 
   // Matchmaking
 
   var matchMake = function() {
-    var availableServers = _.where(state.servers, {status: 'available'});
+    var availableServers = _.where(state.servers, {isInUse: false});
     if (availableServers.length === 0) {
       return;
     }
@@ -262,8 +278,8 @@ module.exports = function(app) {
       }
     });
 
-    // Set server status to "in-game"
-    availableServers[0].status = 'in-game';
+    // Set server isInUse to true
+    availableServers[0].isInUse = true;
 
     // Create new "mix" document, save to db
     // Get mixId
@@ -315,10 +331,42 @@ module.exports = function(app) {
     findAndDestroyUser(userId);
   });
 
+  dispatchListener.on('serverUpdated', function (updatedServer) {
+    // If server's availability changed to false, remove from state
+    if (!updatedServer.isAvailable) {
+      for (var i=0, len=state.servers.length; i<len; i++) {
+        if ( state.servers[i]._id.equals(updatedServer._id) ) {
+          state.servers.splice(i,1);
+          break;
+        }
+      }
+      return;
+    }
+
+    var server = _.find(state.servers, function(s) { return s._id.equals(updatedServer._id); });
+    if (server) {
+      updatedServer.isInUse = server.isInUse;
+      server = updatedServer;
+    } else {
+      updatedServer.isInUse = false;
+      state.servers.push(updatedServer);
+      matchMake();
+    }
+  });
+  
+  dispatchListener.on('serverDestroyed', function (destroyedServer) {
+    for (var i=0, len=state.servers.length; i<len; i++) {
+      if ( state.servers[i]._id.equals(destroyedServer._id)) {
+        state.servers.splice(i,1);
+        break;
+      }
+    }
+  });
+
   dispatchListener.on('!gameover', function (data) {
     var servers = _.where(state.servers, {ip: data.ip});
     if (servers.length > 0) {
-      servers[0].status = 'available';
+      servers[0].isInUse = false;
       matchMake();
     }
   });
