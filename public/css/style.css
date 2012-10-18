@@ -28,3 +28,6 @@ body{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA
 .sprite ::-webkit-scrollbar-thumb:vertical{background-color:rgba(0,0,0,0.2)}
 .sprite .textarea-container{overflow:hidden;position:relative;}
 .sprite .textarea-container textarea{position:absolute;left:-100px;width:80px}
+.wysiwyg-text-align-left{text-align:left}
+.wysiwyg-text-align-center{text-align:center}
+.wysiwyg-text-align-right{text-align:right}

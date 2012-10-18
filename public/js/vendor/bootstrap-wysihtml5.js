@@ -26,6 +26,15 @@
                   "</div>" +
                 "</li>",
 
+            "justify":
+                "<li>" +
+                   "<div class='btn-group'>" +
+                       "<a class='btn' data-wysihtml5-command='justifyLeft' title='" + locale.justify.left + "'><i class='icon-align-left'></i></a>" +
+                       "<a class='btn' data-wysihtml5-command='justifyCenter' title='" + locale.justify.center + "'><i class='icon-align-center'></i></a>" +
+                       "<a class='btn' data-wysihtml5-command='justifyRight' title='" + locale.justify.right + "'><i class='icon-align-right'></i></a>" +
+                   "</div>" +
+               "</li>",
+
             "lists":
                 "<li>" +
                   "<div class='btn-group'>" +
@@ -334,7 +343,7 @@
             return methods.init.apply( this, arguments );
         } else {
             $.error( 'Method ' +  method + ' does not exist on jQuery.wysihtml5' );
-        }    
+        }
     };
 
     $.fn.wysihtml5.Constructor = Wysihtml5;
@@ -343,13 +352,18 @@
         "font-styles": true,
         "color": false,
         "emphasis": true,
+        "justify": true,
         "lists": true,
-        "html": false,
+        "html": true,
         "link": true,
         "image": true,
         events: {},
         parserRules: {
             classes: {
+                // (path_to_project/lib/css/wysiwyg-justify.css)
+                "wysiwyg-text-align-left": 1,
+                "wysiwyg-text-align-center": 1,
+                "wysiwyg-text-align-right": 1,
                 // (path_to_project/lib/css/wysiwyg-color.css)
                 "wysiwyg-color-silver" : 1,
                 "wysiwyg-color-gray" : 1,
@@ -401,7 +415,7 @@
                 "div": 1
             }
         },
-        stylesheets: ["./lib/css/wysiwyg-color.css"], // (path_to_project/lib/css/wysiwyg-color.css)
+        stylesheets: ["/css/style.css"], // (path_to_project/lib/css/wysiwyg-color.css)
         locale: "en"
     };
 
@@ -421,6 +435,11 @@
                 bold: "Bold",
                 italic: "Italic",
                 underline: "Underline"
+            },
+            justify: {
+                left: "Align left",
+                center: "Align center",
+                right: "Align right"
             },
             lists: {
                 unordered: "Unordered list",
