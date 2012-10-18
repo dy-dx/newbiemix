@@ -15,7 +15,6 @@ exports.matchmaker = function(newbies, coaches) {
   // Need some algorithm here to quickly determine if a solution is possible
   //  without running the entire matchmaking algoritm
 
-
   // Try to build a solution with two coaches (the first 2
   //  elements in the array are guaranteed to play) and 10 newbies,
   //  if there aren't enough coaches then just try 12 newbies
@@ -32,6 +31,12 @@ exports.matchmaker = function(newbies, coaches) {
   if (queue.length < 12) {
     return false;
   }
+
+  // For debugging
+  // var queue = coaches.slice(0,2).concat(newbies);
+  // if (queue.length === 0) {
+  //   return false;
+  // }
 
 
 

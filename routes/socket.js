@@ -28,9 +28,6 @@ module.exports = function(app) {
   //  that it'll complete by the time I need the data
   Server.find({ isAvailable: true }, function(err, servers) {
     if (err) throw err;
-    servers.forEach(function(server, index) {
-      server.isInUse = false;
-    });
     state.servers = servers;
   });
 
@@ -364,9 +361,9 @@ module.exports = function(app) {
   });
 
   dispatchListener.on('!gameover', function (data) {
-    var servers = _.where(state.servers, {ip: data.ip});
-    if (servers.length > 0) {
-      servers[0].isInUse = false;
+    var server = _.find(state.servers, function(s) { return s.ip === data.ip; });
+    if (server) {
+      server.isInUse = false;
       matchMake();
     }
   });
