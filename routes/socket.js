@@ -196,18 +196,11 @@ module.exports = function(app) {
       //  rejected by the matchmaker)
       user.status = 'idle';
       user.timeoutId = setTimeout(function() {
-        // Remove user from queue and users obj
-        
         removeFromQueue(user);
-
-        console.log('Deleting user for real: ' + user.name);
-        delete(state.users[user._id]);
         // Maybe i need to call delete on the socket as well? who knows
-
+        delete(state.users[user._id]);
       }, 60*1000);
-
     });
-
   });
 
 
@@ -318,6 +311,10 @@ module.exports = function(app) {
    * Dispatch Listener Events
    */
 
+  dispatchListener.on('logout', function (userId) {
+    findAndDestroyUser(userId);
+  });
+
   dispatchListener.on('!gameover', function (data) {
     var servers = _.where(state.servers, {ip: data.ip});
     if (servers.length > 0) {
@@ -348,6 +345,17 @@ module.exports = function(app) {
       }
     }
     return false;
+  };
+
+  var findAndDestroyUser = function(userId) {
+    var user = state.users[userId];
+    if (!user) return;
+    if (user.socket) {
+      user.socket.disconnect();
+    }
+    removeFromQueue(user);
+    // Maybe i need to call delete on the socket as well? who knows
+    delete(state.users[user._id]);
   };
 
 

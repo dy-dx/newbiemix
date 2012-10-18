@@ -15,6 +15,7 @@ var express = require('express'),
 mongoose.connect(env.mongo_url);
 
 var Player = require('./models/player');
+var dispatchListener = require('./routes/dispatchlistener');
 
 var app = module.exports = express.createServer();
 
@@ -25,6 +26,14 @@ everyauth.everymodule.moduleTimeout(8000); // Wait 8 seconds per step before tim
 everyauth.everymodule.findUserById( function (req, userId, callback) {
   Player.findById(userId, callback);
   // callback has the signature, function (err, user) {...}
+});
+everyauth.everymodule.handleLogout( function (req, res) {
+  if (req.user) {
+    dispatchListener.emit('logout', req.user.id);
+  }
+  req.logout(); // The logout method is added for you by everyauth, too
+  // And/or put your extra logic here
+  this.redirect(res, this.logoutRedirectPath());
 });
 everyauth.steam
   .myHostname( env.hostname )
