@@ -47,5 +47,13 @@ block body
   #loading(ng-show='loading')
     .alert
       | Loading...
+  .ui-modal.fade(ng-model="disconnected")
+    .modal-header
+      button(class='close', type='button', data-dismiss='modal') ×
+      h1 You have been disconnected from the server.
+    .modal-body
+      p Either the server crashed, or you opened the site in a new tab.
+    .modal-footer
+      button(class='btn', data-dismiss='modal') Close
   //- Main Content
   .container(ng-view)

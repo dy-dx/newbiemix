@@ -107,7 +107,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
   // Socket.io
 
   socket.on('disconnect', function() {
-    // alert('got booted');
+    $scope.disconnected = true;
   });
 
 
