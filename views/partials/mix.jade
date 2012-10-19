@@ -4,14 +4,6 @@
       .mix-info
         p techno is not a designer. &nbsp; techno is not a designer. &nbsp; techno is not a designer.<br /><br />
         .mix-teams.clearfix
-          ul.redteam
-            li red guyz
-            li(ng-repeat='player in mix.redteam')
-              a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
-                img.avatar(ng-src="{{player.avatar}}")
-                .name
-                  span {{player.class}}: {{player.name}}
-                .rank.label.label-inverse(ng-show='{player.rank=="coach"}') Coach
           ul.bluteam
             li blue guyz
             li(ng-repeat='player in mix.bluteam')
@@ -19,7 +11,15 @@
                 img.avatar(ng-src="{{player.avatar}}")
                 .name
                   span {{player.class}}: {{player.name}}
-                .rank.label.label-inverse(ng-show='{player.rank=="coach"}') Coach
+                .rank.label.label-inverse(ng-show="player.rank=='coach'") Coach
+          ul.redteam
+            li red guyz
+            li(ng-repeat='player in mix.redteam')
+              a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
+                img.avatar(ng-src="{{player.avatar}}")
+                .name
+                  span {{player.class}}: {{player.name}}
+                .rank.label.label-inverse(ng-show="player.rank=='coach'") Coach
         p.date Started: {{mix.updated | date:'medium'}}
         .input-append.connect-string
           input(readonly, type='text', onmouseover='this.select();', value='connect {{mix.server.ip}}; password {{mix.server.password}}')
