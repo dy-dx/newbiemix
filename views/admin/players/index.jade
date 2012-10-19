@@ -1,0 +1,21 @@
+extends ../layout
+
+block body
+  .row
+    .span12
+      h2 Players
+      .well.well-large
+        a.btn.btn-primary(href='/admin/players/new') Batch Add Coaches
+        .row
+          .span3: strong Name
+          .span2: strong 64bit Id
+          .span1: strong Rank
+          .span1: strong Permissions
+        - each player in players
+          .row
+            .span3 #{player.name}
+            .span2 #{player._id}
+            .span1 #{player.rank}
+            .span1 #{player.permissions}
+            .span1
+              a.btn(href="/admin/players/#{player._id}/edit") Edit

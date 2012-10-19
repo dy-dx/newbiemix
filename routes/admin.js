@@ -4,6 +4,11 @@
 
 var Page = require('../models/page');
 var Server = require('../models/server');
+var Player = require('../models/player');
+var request = require('request');
+var xml2js = require('xml2js');
+var env = require('../cfg/env'),
+  secrets = env.secrets;
 var dispatchListener = require('./dispatchlistener');
 
 module.exports = function(app) {
@@ -27,6 +32,14 @@ module.exports = function(app) {
   app.post('/admin/servers', isAdmin, serverCreate);
   app.put('/admin/servers/:id', isAdmin, serverUpdate);
   app.del('/admin/servers/:id', isAdmin, serverDestroy);
+
+
+  app.get('/admin/players', isAdmin, playerIndex);
+  app.get('/admin/players/new', isAdmin, playerNew);
+  app.get('/admin/players/:id/edit', isAdmin, playerEdit);
+  
+  app.put('/admin/players/:id', isAdmin, playerUpdate);
+  app.post('/admin/players', isAdmin, playerCreate);
 
 };
 
@@ -138,4 +151,94 @@ var serverDestroy = function(req, res) {
       dispatchListener.emit('serverDestroyed', server);
     }
   });
+};
+
+/**
+ * Players
+ */
+
+// This is for batch adding coaches only!
+var playerNew = function(req, res) {
+  res.render('admin/players/new');
+};
+
+var playerIndex = function(req, res) {
+  Player.find({}).exec(function(err, players) {
+    if (err) return res.json(false);
+    res.render('admin/players/index', { players: players });
+  });
+};
+
+var playerEdit = function(req, res) {
+  Player.findById(req.params.id).exec(function(err, player) {
+    if (err) return res.json(false);
+    res.render('admin/players/edit', { player: player });
+  });
+};
+
+var playerUpdate = function(req, res) {
+  if (!req.body || !req.body.player) return res.json(false);
+  req.body.updated = new Date();
+  Player.findByIdAndUpdate(req.params.id,
+                           {$set:{name: req.body.player.name,
+                                  rank: req.body.player.rank,
+                                  updated: new Date() }},
+                           function(err, player) {
+    if (err) return res.json(false);
+    res.json(true);
+    dispatchListener.emit('playerUpdated', player);
+  });
+};
+// This is for batch adding coaches only!
+var playerCreate = function(req, res) {
+  if (!req.body || !req.body.coachurls) return res.json(false);
+
+  var coachurls = req.body.coachurls;
+
+  if (!Array.isArray(coachurls) || coachurls.length === 0) return res.json(false);
+
+  var itsOver = false;
+  // I don't think this is correct but whatever
+  reg = new RegExp(/http\:\/\/\w+(\/\S*)?/);
+  coachurls.forEach(function(url, index) {
+    if (itsOver || !reg.test(url)) return;
+
+    request({timeout: 7000, url:url + '?xml=true'}, function(err, steamRes, body) {
+      if (err || steamRes.statusCode !== 200){
+        itsOver = true;
+        return res.json(false);
+      }
+      var parser = new xml2js.Parser();
+      parser.parseString(body, function (err, result) {
+        if (err || !result || !result.profile || !result.profile.steamID64 || !result.profile.steamID){
+          itsOver = true;
+          return res.json(false);
+        }
+        var steamid = result.profile.steamID64[0];
+        var name = result.profile.steamID[0];
+        var coach = {
+          name: name,
+          rank: 'coach',
+          updated: new Date()
+        };
+        Player.update({_id: steamid}, coach, {upsert: true}, function(err) {
+          if (err) {
+            itsOver = true;
+            return res.json(false);
+          }
+
+          coach._id = steamid;
+          dispatchListener.emit('playerUpdated', coach);
+
+          if (index == coachurls.length-1) {
+            // This is stupid because of async but oh well
+            return res.json(true);
+          }
+        });
+
+      });
+    });
+
+
+  }); // End coachurls.forEach()
 };

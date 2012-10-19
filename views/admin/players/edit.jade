@@ -1,0 +1,51 @@
+extends ../layout
+
+block body
+  .row
+    .span12
+      h2 Editing Player: #{player.name}
+      .well.well-large
+        .row
+          .span3: strong Name
+          .span2: strong 64bit Id
+          .span2: strong Rank
+          .span1: strong Permissions
+        .controls.controls-row
+          input#name.span3(type='text', value='#{player.name}')
+          input#id.span2(disabled, type='text', value='#{player._id}')
+          select#rank.span2(type='text')
+            - if (player.rank == 'coach')
+              option newbie
+              option(selected) coach
+            - else
+              option(selected) newbie
+              option coach
+          input#permissions.span1(disabled, type='text', value='#{player.permissions}')
+        p
+          | If this player is connected to the website when you click save, he will be disconnected and logged out! 
+        .row
+          .span1
+            button#save.btn.btn-primary(type="button") Save
+  script(type="text/javascript")
+    $(document).ready(function() {
+      $('#save').click(function() {
+
+        var name = $('#name').val().trim();
+        var rank = $('#rank').val();
+
+        $.ajax({
+          url: '/admin/players/#{player._id}',
+          type: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify({ player: {
+            name: name,
+            rank: rank
+          }})
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/players';
+          }
+          alert('Something went wrong.');
+        });
+      });
+    });

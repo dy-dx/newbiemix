@@ -1,0 +1,48 @@
+extends ../layout
+
+block body
+  .row
+    .span12
+      h2 Batch Add Coaches
+      .well.well-large
+        textarea#coachurls(rows="8", style="width:50%;")
+        p
+          | -Please enter steam profile urls of players you want to be coaches,
+          | e.g. http://steamcommunity.com/id/TECHNOSEX, http://steamcommunity.com/profiles/76561197996246142.
+          | The http:// part is required.
+          br
+          | -Enter one per line.
+          br
+          | -Don't put in too many at a time, it could break something.
+          br
+          | -If the player already exists in the system and he is using the website, he will be disconnected and logged out!
+        .row
+          .span1
+            button#save.btn.btn-primary(type="button") Save
+  script(type="text/javascript")
+    $(document).ready(function() {
+      $('#save').click(function() {
+
+        var lines = $('#coachurls').val().trim().split('\n');
+        var coachurls = [];
+        lines.forEach(function(line, index) {
+          line = line.trim()
+          if (line) {
+            coachurls.push(line);
+          }
+        });
+        if (coachurls.length == 0) return;
+
+        $.ajax({
+          url: '/admin/players',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ coachurls: coachurls })
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin/players';
+          }
+          alert('Something went wrong.');
+        });
+      });
+    });

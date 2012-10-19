@@ -47,6 +47,7 @@ module.exports = function(app) {
         return fn(null, true);
       }
       data.session = sess;
+      data.session.sid = sid;
 
       // If user is already connected, disconnect the old socket;
       if (state.users[sess.auth.steam.user._id]) {
@@ -67,6 +68,7 @@ module.exports = function(app) {
      */
 
     var user = socket.handshake.session.auth.steam.user;
+    user.sid = socket.handshake.session.sid;
     var queuePos;
     // If existing user in state, then take that one instead
     //  and clear timeout if that exists
@@ -362,6 +364,18 @@ module.exports = function(app) {
     }
   });
 
+  dispatchListener.on('playerUpdated', function (updatedPlayer) {
+    if (updatedPlayer && updatedPlayer._id) {
+      // THIS IS SO HACKY UGGHGHGHH
+      console.log(updatedPlayer);
+      var user = state.users[updatedPlayer._id];
+      if (user) {
+        user.rank = updatedPlayer.rank;
+        findAndDestroyUser(user._id);
+      }
+    }
+  });
+
   dispatchListener.on('!gameover', function (data) {
     var server = _.find(state.servers, function(s) { return s.ip === data.ip; });
     if (server) {
@@ -403,6 +417,11 @@ module.exports = function(app) {
     removeFromQueue(user);
     // Maybe i need to call delete on the socket as well? who knows
     delete(state.users[user._id]);
+
+    app.store.destroy(user.sid, function(err) {
+      // Do something
+      console.log(err);
+    });
   };
 
 

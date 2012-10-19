@@ -17,6 +17,7 @@
     "request": ">= 2.x.x",
     "socket.io": "0.9.x",
     "stylus": ">= 0.0.1",
-    "underscore": "1.4.2"
+    "underscore": "1.4.2",
+    "xml2js": "*"
   }
 }

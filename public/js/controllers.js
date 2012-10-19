@@ -77,6 +77,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
     $rootScope.id = data.id;
     $scope.rank = data.rank;
     $scope.classes = data.classes;
+    $scope.disconnected = false;
     updateAddedState(data.added);
     if (typeof(data.queuepos) === 'number') {
       $scope.queuePos = data.queuepos;

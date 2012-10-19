@@ -17,7 +17,7 @@ var playerSchema = new mongoose.Schema({
       {name: 'Medic', id: 'Medic', selected: false},
       {name: 'Demoman', id: 'Demoman', selected: false}
     ]}, // Do I need to validate this?
-  permissions: { type: Number, required: true } // 1: user, 2: moderator, 5: admin, 10: superadmin
+  permissions: { type: Number, default: 1 } // 1: user, 2: moderator, 5: admin, 10: superadmin
 });
 
 var steamIdToNumericId = function(steamid) {
