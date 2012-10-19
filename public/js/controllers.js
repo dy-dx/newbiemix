@@ -111,11 +111,30 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
   });
 
 
+  // When player gets picked for a mix, play a sound, flash the
+  //  title bar, and change location to the mix page
+  var sound = document.getElementById("sound_player");
+  var sounds = ['navi-out.wav'
+                // 'navi-heylisten.mp3'
+               ];
+  sound.src = '/snd/' + sounds[Math.floor(Math.random()*sounds.length)];
   socket.on('match:join', function(data) {
-    
     updateAddedState(false);
+    sound.play();
+    var msg = 'You got picked!';
+    var intervalId, oldTitle = document.title;
+    intervalId = setInterval(function(){
+      document.title = document.title == msg ? oldTitle : msg;
+    }, 1000);
+    window.onmousemove = function() {
+      if(oldTitle && document.hasFocus()) {
+        clearInterval(intervalId);
+        document.title = oldTitle;
+        oldTitle = intervalId = null;
+        window.onmousemove = null;
+      }
+    };
     $location.url('/mix/' + data.mixId);
-
   });
 
 }
