@@ -307,6 +307,7 @@ module.exports = function(app) {
         }
 
         chosenPlayers.forEach(function(player, index) {
+          if (!state.users[player._id]) return;
           state.users[player._id].added = false;
           io.sockets.socket(player.socket.id).emit('match:join', {
             mixId: mixId
