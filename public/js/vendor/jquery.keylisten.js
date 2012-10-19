@@ -30,8 +30,8 @@
 
   var modifiers = ['alt', 'ctrl', 'meta', 'shift'];
 
-  // var keyevent = $.browser.mozilla || $.browser.opera ? 'keypress' : 'keydown';
-  var keyevent = 'keyup';
+  var keyevent = $.browser.mozilla || $.browser.opera ? 'keypress' : 'keydown';
+  // var keyevent = 'keyup';
   $.event.special.keylisten = {
     setup: function(data, namespaces) {
       $(this).bind(keyevent, $.event.special.keylisten.handler)

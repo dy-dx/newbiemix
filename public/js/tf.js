@@ -450,7 +450,7 @@ var tf = {};
         switch (e.keyCode) {
           case 13:
             $text.val('');
-            $text.blur();
+            // $text.blur();
             return false;
           default:
             me.speak(text);
@@ -471,9 +471,24 @@ var tf = {};
         }
       }).focus();
     $(document).keylisten(function(e) {
+      if (e.altKey || e.ctrlKey || e.metaKey) return true;
+      switch (e.keyName) {
+        case 'meta':
+        case 'meta+ctrl':
+        case 'ctrl':
+        case 'alt':
+        case 'shift':
+        case 'up':
+        case 'down':
+        case 'left':
+        case 'right':
+          return;
+        default:
+          $text.focus();
+      }
       // Press 'y' to chat
-      if (e.keyCode === 89)
-        $text.focus();
+      // if (e.keyCode === 89)
+      //   $text.focus();
     });
 
 

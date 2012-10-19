@@ -68,11 +68,11 @@ exports.matchmaker = function(newbies, coaches) {
   });
 
   var winners = hungarian(matrix);
-  var classes = ['scout','scout','scout','scout',
-                 'psoldier','psoldier',
-                 'rsoldier','rsoldier',
-                 'demoman','demoman',
-                 'medic','medic'];
+  var classes = ['Scout','Scout','Scout','Scout',
+                 'Pocket','Pocket',
+                 'Roamer','Roamer',
+                 'Demoman','Demoman',
+                 'Medic','Medic'];
   var solution = [];
   var noSolution = false;
 

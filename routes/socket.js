@@ -113,7 +113,7 @@ module.exports = function(app) {
       var selectedClasses = [];
       // Oh dear god
       classes.forEach(function(c,index) {
-        if ( (c.id === 'scout' || c.id === 'psoldier' || c.id === 'rsoldier' || c.id === 'medic' || c.id === 'demoman') && c.selected === true ) {
+        if ( (c.id === 'Scout' || c.id === 'Pocket' || c.id === 'Roamer' || c.id === 'Medic' || c.id === 'Demoman') && c.selected === true ) {
           selectedClasses.push(c.id);
         }
       });
@@ -127,21 +127,21 @@ module.exports = function(app) {
         if (duplicates.indexOf(cid) > -1) {
           return callback(false);
         }
-        if (cid === 'scout') {
+        if (cid === 'Scout') {
           costs[0] = c;
           costs[1] = c;
           costs[2] = c;
           costs[3] = c;
-        } else if (cid === 'psoldier') {
+        } else if (cid === 'Pocket') {
           costs[4] = c;
           costs[5] = c;
-        } else if (cid === 'rsoldier') {
+        } else if (cid === 'Roamer') {
           costs[6] = c;
           costs[7] = c;
-        } else if (cid === 'demoman') {
+        } else if (cid === 'Demoman') {
           costs[8] = c;
           costs[9] = c;
-        } else if (cid === 'medic') {
+        } else if (cid === 'Medic') {
           costs[10] = c;
           costs[11] = c;
         } else {
@@ -267,7 +267,7 @@ module.exports = function(app) {
       if (redteam.length === 6) return bluteam.push(newbie);
       var c = newbie.class;
       var limit = 2;
-      if (c === 'scout') limit = 4;
+      if (c === 'Scout') limit = 4;
       if ( _.where(redteam, {class: c}).length === limit ) {
         bluteam.push(newbie);
       } else {
