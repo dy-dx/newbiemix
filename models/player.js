@@ -142,7 +142,8 @@ playerSchema.statics.getSteamApiInfo = function(steamid, callback) {
   var options = {
     uri: 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/',
     qs: { key: secrets.steam, steamids: steamid },
-    json: true
+    json: true,
+    timeout: 7000
   };
 
   request(options, function(err, res, body) {
@@ -151,13 +152,11 @@ playerSchema.statics.getSteamApiInfo = function(steamid, callback) {
       return callback(err);
     }
     if (res.statusCode !== 200) {
-      console.log('Steam API Status Code: ' + res.statusCode);
-      console.log(res.body);
-      return callback(err);
+      return callback(new Error('Steam API Status Code: ' + res.statusCode));
     }
     if (body.response.players.length === 0) {
       console.log('Steam Api Player Not Found: ' + steamid);
-      return callback(err);
+      return callback(new Error('Steam API Player Not Found: ' + steamid));
     }
     return callback(null, body.response.players[0]);
   }); // End request
