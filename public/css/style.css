@@ -22,11 +22,12 @@ body{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA
 .mix-teams li:first-child{text-align:center;border-top:0}
 .mix-teams li{width:350px;padding:5px 6px;position:relative;border-top:1px solid #808080}
 .mix-teams div{display:inline-block}
-.mix-teams img{-webkit-border-radius:4px;border-radius:4px}
-.redteam{float:left;}
-.redteam img{border:3px solid #d06553}
-.bluteam{float:right;}
+.mix-teams img{-webkit-border-radius:4px;border-radius:4px;overflow:hidden}
+.bluteam{float:left;}
 .bluteam img{border:3px solid #79b3d2}
+.redteam{float:right;}
+.redteam img{border:3px solid #d06553}
+.me{border:3px solid #ffd633 !important}
 .name{max-width:269px;padding:0 5px;white-space:nowrap;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}
 .name:hover{position:relative;overflow:visible;z-index:100;}
 .name:hover span{background-color:#fff}

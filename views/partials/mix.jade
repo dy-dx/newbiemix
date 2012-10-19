@@ -2,13 +2,12 @@
   .span12
     .content.nomove
       .mix-info
-        p techno is not a designer. &nbsp; techno is not a designer. &nbsp; techno is not a designer.<br /><br />
         .mix-teams.clearfix
           ul.bluteam
             li blue guyz
             li(ng-repeat='player in mix.bluteam')
               a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
-                img.avatar(ng-src="{{player.avatar}}")
+                img.avatar(ng-src="{{player.avatar}}", ng-class="{me:id==player._id}")
                 .name
                   span {{player.class}}: {{player.name}}
                 .rank.label.label-inverse(ng-show="player.rank=='coach'") Coach
@@ -16,11 +15,12 @@
             li red guyz
             li(ng-repeat='player in mix.redteam')
               a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
-                img.avatar(ng-src="{{player.avatar}}")
+                img.avatar(ng-src="{{player.avatar}}", ng-class="{me:id==player._id}")
                 .name
                   span {{player.class}}: {{player.name}}
                 .rank.label.label-inverse(ng-show="player.rank=='coach'") Coach
-        p.date Started: {{mix.updated | date:'medium'}}
+        p.server Server: {{mix.server.name}}
+        p.date Date: {{mix.updated | date:'MMM d, y h:mm a'}}
         .input-append.connect-string
           input(readonly, type='text', onmouseover='this.select();', value='connect {{mix.server.ip}}; password {{mix.server.password}}')
           a.btn.btn-primary(href='steam://connect/{{mix.server.ip}}/{{mix.server.password}}') Connect to Server

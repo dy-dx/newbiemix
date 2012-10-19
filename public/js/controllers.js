@@ -56,6 +56,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
    */
 
   socket.on('state:init', function(data) {
+    $rootScope.id = data.id;
     $scope.rank = data.rank;
     $scope.classes = data.classes;
     updateAddedState(data.added);
@@ -126,9 +127,6 @@ function MixCtrl($scope, $window, $rootScope, $routeParams, $http) {
   $http.get('/api/mixes/' + $routeParams.id)
     .success(function(data, status, headers, config) {
       $scope.mix = data.mix;
-
-      // var connect = 'steam://connect/' + $scope.mix.server.ip + '/' + $scope.mix.server.password;
-      // $window.location.href = connect;
     });
 
 }

@@ -94,6 +94,7 @@ module.exports = function(app) {
     
     // Send initialization info
     socket.emit('state:init', {
+      id: user._id,
       rank: user.rank,
       classes: user.classes,
       added: user.added,
