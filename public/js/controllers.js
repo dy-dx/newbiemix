@@ -22,9 +22,19 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
 
   var updateAddedState = function(added) {
     $scope.added = added;
+    $scope.buttonStyle = {};
     $scope.buttonText = added ? 'Remove' : 'Add Up';
     $scope.buttonClass = added ? 'btn-danger' : 'btn-success';
-    $scope.buttonStyle = {};
+    if (added) {
+      jQuery('.classpicker').sortable('disable');
+    } else {
+      jQuery('.classpicker').sortable('enable');
+    }
+  };
+
+  $scope.selectClass = function(c) {
+    if ($scope.added) return;
+    c.selected = !c.selected;
   };
 
   $scope.getClassIcon = function(c) {
@@ -37,8 +47,16 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
       socket.emit('queue:remove');
       updateAddedState(false);
       $scope.queuePos = null;
-
     } else {
+      // Check if enough classes are selected
+      var selected = _.find($scope.classes, function(c){ return c.selected; });
+      if (!selected) {
+        jQuery('.classpicker').popover('show');
+        setTimeout(function() {
+          jQuery('.classpicker').popover('hide');
+        }, 5000);
+        return;
+      }
       // Add to queue
       socket.emit('queue:add', $scope.classes, function(response) {
         if (typeof(response) !== 'number') {

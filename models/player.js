@@ -11,11 +11,11 @@ var playerSchema = new mongoose.Schema({
   country: { type: String, default: 'i dunno' }, // Some players don't have this
   rank: { type: String, required: true },
   classes: { type: Array, default: [
-      {name: 'Scout', id: 'Scout', selected: true},
-      {name: 'Pocket', id: 'Pocket', selected: true},
-      {name: 'Roamer', id: 'Roamer', selected: true},
-      {name: 'Medic', id: 'Medic', selected: true},
-      {name: 'Demoman', id: 'Demoman', selected: true}
+      {name: 'Scout', id: 'Scout', selected: false},
+      {name: 'Pocket', id: 'Pocket', selected: false},
+      {name: 'Roamer', id: 'Roamer', selected: false},
+      {name: 'Medic', id: 'Medic', selected: false},
+      {name: 'Demoman', id: 'Demoman', selected: false}
     ]}, // Do I need to validate this?
   permissions: { type: Number, required: true } // 1: user, 2: moderator, 5: admin, 10: superadmin
 });

@@ -4,18 +4,13 @@ block body
   .navbar.navbar-inverse.navbar-fixed-top.nomove
     .navbar-inner
       .container
-        //- ul.nav
-          //- li(class='home', ng-class='{active:path()=="/"}')
-          //-   a(href='/') Home
-          //- li(class='about', ng-class='{active:path()=="/about"}')
-          //-   a(href='/about') About
         - if (loggedIn)
           .classpicker-description
-            span.pull-left &larr;favorite
-            span dbl click to ban
-            span.pull-right least favorite&rarr;
-          ul.nav.classpicker(ui-sortable, ng-model='classes')
-            li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='c.selected=!c.selected', ng-style='getClassIcon(c)')
+            span &larr;favorite
+            span dbl click to select
+            span least favorite&rarr;
+          ul.nav.classpicker(ui-sortable, ui-jq='popover', data-trigger='manual', data-placement='bottom', data-content='You must select at least one class before you can add up!', ng-model='classes')
+            li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='selectClass(c)', ng-style='getClassIcon(c)')
               | {{c.name}}
           button.add-up.btn(ng-cloak, ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
           .btn-group.pull-right

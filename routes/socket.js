@@ -153,7 +153,7 @@ module.exports = function(app) {
 
       // Update user with new costs array
       user.costs = costs;
-
+      user.classes = classes;
       // Save his preferred classes to database
       Player.update({_id: user._id}, {classes: classes}, function(err) {
         // I don't care about errs here

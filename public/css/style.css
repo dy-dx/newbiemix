@@ -5,10 +5,12 @@ body{background-image:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAA
 #loading .alert{position:relative;display:inline;padding:8px 14px;left:470px;margin-left:-47px}
 .caret{margin:13px 0 0 1px !important}
 .add-up{position:absolute;left:50%;margin-top:12px !important;margin-left:-42px;padding:11px 14px;font-size:18px;line-height:normal;-webkit-border-radius:6px;border-radius:6px}
-.classpicker-description{text-align:center;position:absolute;top:65px;width:340px;}
+.classpicker-description{text-align:center;position:absolute;top:64px;width:340px;}
 .classpicker-description span{font-size:10px}
-.classpicker{height:82px}
-.class-icon,.placeholder{width:64px;height:64px;margin:6px 2px;text-align:center;color:#fff;font:12px "Lucida Grande",Helvetica,Arial,sans-serif;text-shadow:1px 1px #000}
+.classpicker-description span:first-child{position:absolute;left:0;top:2px}
+.classpicker-description span:last-child{position:absolute;right:0;top:2px}
+.classpicker{height:82px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+.class-icon{width:64px;height:64px;margin:6px 2px;text-align:center;color:#fff;font:12px "Lucida Grande",Helvetica,Arial,sans-serif;text-shadow:1px 1px #000}
 .class-icon{-webkit-border-radius:2px;border-radius:2px}
 .class-icon-deselected{opacity:.4;-ms-filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=40);filter:alpha(opacity=40)}
 .steamlogin{margin-top:3px}

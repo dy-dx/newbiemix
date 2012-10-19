@@ -49,20 +49,29 @@ a
 .classpicker-description
   text-align center
   position absolute
-  top 65px
+  top 64px
   width 340px
   span
     font-size 10px
+  span:first-child
+    position absolute
+    left 0
+    top 2px
+  span:last-child
+    position absolute
+    right 0
+    top 2px
 .classpicker
   height 82px
-.class-icon, .placeholder
+  user-select none
+.class-icon
   width 64px
   height 64px
   margin 6px 2px
   text-align center
   color white
   font 12px "Lucida Grande", Helvetica, Arial, sans-serif
-  text-shadow:1px 1px #000000;
+  text-shadow 1px 1px #000000
 
 .class-icon
   border-radius 2px
