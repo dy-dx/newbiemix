@@ -64,7 +64,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
         }
         updateAddedState(true);
         $scope.queuePos = response;
-        $scope.statusCounts[$scope.rank] += 1;
+        $rootScope.statusCounts[$scope.rank] += 1;
       });
     }
   };
@@ -90,19 +90,22 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
    */
 
   socket.on('status:counts', function(data) {
-    $scope.statusCounts = data;
+    $rootScope.statusCounts = data;
   });
 
   socket.on('queue:add', function(data) {
-    $scope.statusCounts[data.rank] += 1;
+    $rootScope.statusCounts[data.rank] += 1;
   });
 
   socket.on('queue:remove', function(data) {
-    $scope.statusCounts[data.rank] -= 1;
-
+    $rootScope.statusCounts[data.rank] -= 1;
     if ($scope.queuePos && data.queuePos < $scope.queuePos) {
       $scope.queuePos -= 1;
     }
+  });
+
+  $scope.$watch('queuePos', function(queuePos) {
+    $scope.queueOrd = getOrdinal(queuePos+1);
   });
 
   // Socket.io
@@ -137,6 +140,15 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
     };
     $location.url('/mix/' + data.mixId);
   });
+
+
+  // Helpers
+  function getOrdinal(n) {
+    var s=["th","st","nd","rd"];
+    var v=n%100;
+    return n+(s[(v-20)%10]||s[v]||s[0]);
+  }
+
 
 }
 

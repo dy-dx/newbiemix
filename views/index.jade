@@ -13,12 +13,15 @@ block body
           ul.nav.classpicker(ui-sortable, ui-jq='popover', data-trigger='manual', data-placement='bottom', data-content='You must select at least one class before you can add up!', ng-model='classes')
             li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='selectClass(c)', ng-style='getClassIcon(c)')
               | {{c.name}}
-          button.add-up.btn(ng-cloak, ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
+          .add-up(ng-cloak)
+            button.btn(ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
+            br
+            span(ng-show='added') You are {{queueOrd}} in the {{rank}} queue.
           .btn-group.pull-right
-            a#profiledropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
+            a#profile-dropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
               span#profilename
                 img(src='#{user.avatar}')
-                | &nbsp;#{user.name}
+                | &nbsp;#{user.name} (#{user.rank})
               span.caret
             ul.dropdown-menu
               li
@@ -27,14 +30,6 @@ block body
               li.divider
               li
                 a(href='/logout/', target='_self') Sign Out
-          //- Status updates:
-          .user-counts.pull-right(ng-cloak, style='margin-right: 15px;')
-            | users: {{statusCounts.users}}<br />
-            | noobs: {{statusCounts.newbie}}<br />
-            | coaches: {{statusCounts.coach}}<br />
-          .status-counts.pull-right(ng-cloak, style='margin-right: 12px;')
-            | free servers: {{statusCounts.freeservers}}/{{statusCounts.servers}}<br />
-            | position in #{user.rank} queue: {{queuePos}}
         - else
           a.brand(href='/') Newbie Mix v0.
             sup 0.

@@ -3,6 +3,20 @@
     .content.nomove(ng-bind-html-unsafe="page.text")
   .span3
     .sidenav.nomove
+      .status
+        .user-counts(ng-cloak, style='margin-right: 15px;')
+          | Users Online:
+          span.pull-right {{statusCounts.users}}
+          br
+          | Newbies Added:
+          span.pull-right {{statusCounts.newbie}}
+          br
+          | Coaches Added:
+          span.pull-right {{statusCounts.coach}}
+          .status-counts(ng-cloak, style='margin-right: 12px;')
+          | Available Servers:
+          span.pull-right {{statusCounts.freeservers}}/{{statusCounts.servers}}
+    .sidenav.nomove
       ul.nav.nav-list
         li(ng-repeat='page in pages', ng-class='{active: isActive($index)}')
           a(href='/page/{{page.slug}}') {{page.title}}
