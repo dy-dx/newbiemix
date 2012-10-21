@@ -6,11 +6,10 @@
 
 var _ = require('underscore');
 
-exports.matchmaker = function(newbies, coaches) {
+exports.matchmaker = function(config, freeQueue, newbies, coaches) {
   var benchmark = Date.now();
   var nlen = newbies.length;
   var clen = coaches.length;
-
 
   // Need some algorithm here to quickly determine if a solution is possible
   //  without running the entire matchmaking algoritm
@@ -19,10 +18,13 @@ exports.matchmaker = function(newbies, coaches) {
   //  elements in the array are guaranteed to play) and 10 newbies,
   //  if there aren't enough coaches then just try 12 newbies
   var queue = [];
-  if (clen >= 2) {
+
+  if (config.enableFreeForAll) {
+    queue = freeQueue.slice();
+  } else if (clen >= 2) {
     queue = coaches.slice(0,2).concat(newbies);
-  } else if (nlen >= 12) {
-   queue = newbies.slice();
+  } else if (nlen >= 12 && config.allowCoachless) {
+    queue = newbies.slice();
   }
 
   // Ignore 'idle' players
@@ -33,7 +35,7 @@ exports.matchmaker = function(newbies, coaches) {
   }
 
   // For debugging
-  // var queue = coaches.slice(0,2).concat(newbies);
+  // var queue = coaches.slice(0,2).concat(newbies).concat(freeQueue);
   // if (queue.length === 0) {
   //   return false;
   // }

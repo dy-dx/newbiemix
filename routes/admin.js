@@ -3,6 +3,7 @@
  */
 
 var Page = require('../models/page');
+var Config = require('../models/config');
 var Server = require('../models/server');
 var Player = require('../models/player');
 var request = require('request');
@@ -14,6 +15,10 @@ var dispatchListener = require('./dispatchlistener');
 module.exports = function(app) {
 
   app.get('/admin', isAdmin, index);
+
+
+  app.get('/admin/config/edit', isAdmin, configEdit);
+  app.put('/admin/config', isAdmin, configUpdate);
 
 
   app.get('/admin/pages', isAdmin, pageIndex);
@@ -58,6 +63,32 @@ var isAdmin = function(req, res, next) {
 var index = function(req, res) {
   res.render('admin/index');
 };
+
+var configEdit = function(req, res) {
+  Config.findById('newbiemix').exec(function(err, config) {
+    if (err) return res.json(false);
+    res.render('admin/config/edit', { config: config });
+  });
+};
+
+var configUpdate = function(req, res) {
+  if (!req.body || !req.body.config) return res.json(false);
+
+  var config = req.body.config;
+  config.updated = new Date();
+  Config.update({ _id: 'newbiemix' }, { $set: config }, function(err) {
+    if (err) return res.json(false);
+
+    res.json(true);
+    dispatchListener.emit('configUpdated', config);
+
+  });
+};
+
+
+/**
+ * Pages
+ */
 
 var pageIndex = function(req, res) {
   Page.find({}).sort('order').exec(function(err, pages) {
@@ -104,6 +135,10 @@ var pageDestroy = function(req, res) {
   });
 };
 
+
+/**
+ * Servers
+ */
 
 var serverIndex = function(req, res) {
   Server.find({}).exec(function(err, servers) {

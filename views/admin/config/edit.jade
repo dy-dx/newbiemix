@@ -1,0 +1,43 @@
+extends ../layout
+
+block body
+  .row
+    .span12
+      .well.well-large
+        form
+          legend Newbie Mix Config
+          label.checkbox
+            input#allowCoachless(type='checkbox', checked=config.allowCoachless)
+            | Allow coachless mixes
+          label.checkbox
+            input#enableFreeForAll(type='checkbox', checked=config.enableFreeForAll)
+            | Enable Free-For-All Mode (everyone adds to the same queue).
+            | This is not yet implemented.
+        .row
+          .span1
+            button#save.btn.btn-primary(type="button", data-loading-text="Loading...") Save
+  script(type="text/javascript")
+    $(document).ready(function() {
+      $('#save').click(function() {
+
+        $('#save').button('loading');
+        var allowCoachless = $('#allowCoachless').prop('checked');
+        var enableFreeForAll = $('#enableFreeForAll').prop('checked');
+
+        $.ajax({
+          url: '/admin/config',
+          type: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify({ config: {
+            allowCoachless: allowCoachless,
+            enableFreeForAll: enableFreeForAll
+          }})
+        }).done(function(msg) {
+          if (msg) {
+            return document.location.href='/admin';
+          }
+          $('#save').button('reset');
+          alert('Something went wrong.');
+        });
+      });
+    });

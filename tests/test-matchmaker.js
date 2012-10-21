@@ -51,8 +51,8 @@ function User(id, selectedClasses) {
   });
 }
 
-
-
+var config = {allowCoachless: true, enableFreeForAll: false};
+var freeQueue = [];
 
 /**
  * Test 1
@@ -71,7 +71,7 @@ coachQueue.push( new User('coach2:P-S-R-D-M', ['Pocket', 'Scout', 'Roamer', 'Dem
 coachQueue.push( new User('coach3:P-S-R-D-M', ['Pocket', 'Scout', 'Roamer', 'Demoman', 'Medic']) );
 
 console.log('Test 1:');
-var testResult1 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult1 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 assert.ok(testResult1 !== false &&
           findById(testResult1, 'coach1:P-S-R-D-M').class === 'Pocket' &&
           findById(testResult1, 'coach2:P-S-R-D-M').class === 'Pocket', 'Test 1 Failed');
@@ -95,7 +95,7 @@ for (var j=0; j<2; j++) {
 }
 
 console.log('Test 2 - Too Few Players:');
-var testResult2 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult2 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 assert.ok(testResult2 === false, 'Test 2 Failed -- Too few players, should return false');
 
 
@@ -116,7 +116,7 @@ for (var j=0; j<2; j++) {
 }
 
 console.log('Test 3 - No Solution:');
-var testResult3 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult3 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 assert.ok(testResult3 === false, 'Test 3 Failed -- No solution possible, should return false');
 
 
@@ -140,7 +140,7 @@ for (var j=0; j<2; j++) {
 }
 
 console.log('Test 4:');
-var testResult4 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult4 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 assert.ok(testResult4 !== false && findById(testResult4, 'noob:M').class === 'Medic', 'Test 4 Failed');
 
 
@@ -168,7 +168,7 @@ for (var i=0; i<80; i++) {
 
 var coachQueue = [];
 console.log('Test 5 - 80 random:');
-var testResult5 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult5 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 
 
 
@@ -197,7 +197,7 @@ newbieQueue.push( new User('noob13:S-P-R-D-M', ['Scout', 'Pocket', 'Roamer', 'De
 var coachQueue = [];
 
 console.log('Test 6:');
-var testResult6 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult6 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 assert.ok(testResult6 !== false && findById(testResult6, 'noob10:M').class === 'Medic', 'Test 6 Failed');
 
 
@@ -227,7 +227,7 @@ coachQueue.push( new User('coach0', ['Scout', 'Pocket', 'Roamer', 'Demoman', 'Me
 coachQueue.push( new User('coach1', ['Scout', 'Pocket', 'Roamer', 'Demoman', 'Medic']) );
 
 console.log('Test 7: 192 goddamn Medics');
-var testResult7 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult7 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 assert.ok(testResult7 !== false &&
           findById(testResult7, 'coach0').class === 'Scout' &&
           findById(testResult7, 'coach1').class === 'Scout' &&
@@ -270,7 +270,7 @@ coachQueue.push( new User('coach0', ['Scout', 'Demoman', 'Medic', 'Pocket']) );
 coachQueue.push( new User('coach1', ['Roamer', 'Demoman', 'Pocket']) );
 
 console.log('Test 8:');
-var testResult8 = matchmaker.matchmaker(newbieQueue, coachQueue);
+var testResult8 = matchmaker.matchmaker(config, freeQueue, newbieQueue, coachQueue);
 assert.ok(testResult8 !== false &&
           findById(testResult8, 'coach0').class === 'Demoman' &&
           findById(testResult8, 'coach1').class === 'Demoman', 'Test 8 Failed');

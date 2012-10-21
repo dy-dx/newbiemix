@@ -6,6 +6,7 @@
 var _ = require('underscore');
 var parseCookie = require('connect').utils.parseCookie;
 var mongoose = require('mongoose');
+var Config = require('../models/config');
 var Player = require('../models/player');
 var Server = require('../models/server');
 var Mix = require('../models/mix');
@@ -18,14 +19,20 @@ module.exports = function(app) {
 
   // State
   var state = {
+    config: {},
     users: {},
     servers: [],
+    freequeue: [],
     newbiequeue: [],
     coachqueue: []
   };
 
-  // Get list of servers, this is async but I'm gonna assume
+  // Get config and list of servers, this is async but I'm gonna assume
   //  that it'll complete by the time I need the data
+  Config.findById('newbiemix', function(err, config) {
+    if (err || !config) throw new Error('No config found!');
+    state.config = config;
+  });
   Server.find({ isAvailable: true }, function(err, servers) {
     if (err) throw err;
     state.servers = servers;
@@ -240,7 +247,7 @@ module.exports = function(app) {
       return;
     }
 
-    var chosenPlayers = matchmaker.matchmaker(state.newbiequeue, state.coachqueue);
+    var chosenPlayers = matchmaker.matchmaker(state.config, state.freequeue, state.newbiequeue, state.coachqueue);
     if (chosenPlayers === false) {
       return;
     }
