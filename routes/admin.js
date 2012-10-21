@@ -74,14 +74,12 @@ var configEdit = function(req, res) {
 var configUpdate = function(req, res) {
   if (!req.body || !req.body.config) return res.json(false);
 
-  var config = req.body.config;
-  config.updated = new Date();
-  Config.update({ _id: 'newbiemix' }, { $set: config }, function(err) {
+  req.body.config.updated = new Date();
+  Config.findByIdAndUpdate('newbiemix', req.body.config, function(err, config) {
     if (err) return res.json(false);
 
     res.json(true);
     dispatchListener.emit('configUpdated', config);
-
   });
 };
 

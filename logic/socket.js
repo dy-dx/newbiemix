@@ -339,6 +339,10 @@ module.exports = function(app) {
     findAndDestroyUser(userId);
   });
 
+  dispatchListener.on('serverUpdated', function(updatedConfig) {
+    state.config = updatedConfig;
+  });
+
   dispatchListener.on('serverUpdated', function (updatedServer) {
     // If server's availability changed to false, remove from state
     if (!updatedServer.isAvailable) {
