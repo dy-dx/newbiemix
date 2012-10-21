@@ -6,7 +6,7 @@
 
 var assert = require('assert');
 var _ = require('underscore');
-var matchmaker = require('../routes/matchmaker');
+var matchmaker = require('../logic/matchmaker');
 
 
 // Helpers

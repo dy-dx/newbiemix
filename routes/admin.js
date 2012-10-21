@@ -10,7 +10,7 @@ var request = require('request');
 var xml2js = require('xml2js');
 var env = require('../cfg/env'),
   secrets = env.secrets;
-var dispatchListener = require('./dispatchlistener');
+var dispatchListener = require('../logic/dispatchlistener');
 
 module.exports = function(app) {
 

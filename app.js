@@ -15,7 +15,7 @@ var express = require('express'),
 mongoose.connect(env.mongo_url);
 
 var Player = require('./models/player');
-var dispatchListener = require('./routes/dispatchlistener');
+var dispatchListener = require('./logic/dispatchlistener');
 
 var app = module.exports = express.createServer();
 
@@ -181,7 +181,7 @@ app.io.set('transports', [
   'xhr-polling',
   'jsonp-polling'
 ]);
-var socket = require('./routes/socket')(app);
+var socket = require('./logic/socket')(app);
 
 app.listen(port, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
