@@ -297,8 +297,7 @@ var tf = {};
   ////// Let's Begin //////
   $(function() {
     // Choose a random sprite
-    // var types = [ 'suit', 'littleguy', 'beast', 'gifter', 'flannel' ];
-    var types = [ 'scout-red', 'soldier-red', 'demoman-red', 'medic-red' ];
+    var types = [ 'scout-red', 'soldier-red', 'demoman-red', 'medic-red', 'engineer-red', 'pyro-red', 'spy-red', 'sniper-red', 'heavy-red' ];
     var me = tf.me = new tf.Player({
       name: types[Math.floor(types.length * Math.random())],
       pos: new tf.Vector(-100, -100),
