@@ -29,12 +29,12 @@ everyauth.everymodule.findUserById( function (req, userId, callback) {
   // callback has the signature, function (err, user) {...}
 });
 everyauth.everymodule.handleLogout( function (req, res) {
-  if (req.user) {
-    dispatchListener.emit('logout', req.user.id);
-  }
-  req.logout(); // The logout method is added for you by everyauth, too
-  // And/or put your extra logic here
+  delete req.session.auth; // This is what req.logout() does
   this.redirect(res, this.logoutRedirectPath());
+  if (req.user) {
+    // disconnect: false, otherwise the client's page will display a premature d/c warning
+    dispatchListener.emit('findAndDestroyUser', req.user.id, null, {disconnect: false});
+  }
 });
 everyauth.steam
   .myHostname( env.hostname )
@@ -69,7 +69,7 @@ everyauth.steam
 
           player.save(function(err) {
             if (err) {
-              console.log(err);
+              console.log('Err saving player', err);
               return promise.fail(err);
             }
             promise.fulfill(player);

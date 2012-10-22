@@ -111,9 +111,11 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
   // Socket.io
 
   socket.on('disconnect', function() {
-    $scope.disconnected = true;
+    // Drop a modal on d/c, but only if the socket has been authenticated
+    if ($rootScope.id) {
+      $scope.disconnected = true;
+    }
   });
-
 
   // When player gets picked for a mix, play a sound, flash the
   //  title bar, and change location to the mix page

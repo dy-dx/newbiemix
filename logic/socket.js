@@ -318,7 +318,7 @@ module.exports = function(app) {
                              { $inc: {next:1} },
                              function(err, mixCounter) {
       if (err || !mixCounter) {
-        console.log(err);
+        console.log('Error getting mixId', err);
         // TODO: Handle an err here
         return;
       }
@@ -336,7 +336,7 @@ module.exports = function(app) {
       });
       newMix.save(function(err) {
         if (err) {
-          console.log(err);
+          console.log('Error saving mix document', err);
           // TODO: Handle an err here
         }
 
@@ -358,8 +358,8 @@ module.exports = function(app) {
    * Dispatch Listener Handlers
    */
 
-  dispatchListener.on('logout', function (userId) {
-    findAndDestroyUser(userId);
+  dispatchListener.on('findAndDestroyUser', function (userId, userToBeDestroyed, options) {
+    findAndDestroyUser(userId, userToBeDestroyed, options);
   });
 
   dispatchListener.on('serverUpdated', function(updatedConfig) {
@@ -401,11 +401,10 @@ module.exports = function(app) {
   dispatchListener.on('playerUpdated', function (updatedPlayer) {
     if (updatedPlayer && updatedPlayer._id) {
       // THIS IS SO HACKY UGGHGHGHH
-      console.log(updatedPlayer);
       var user = state.users[updatedPlayer._id];
       if (user) {
         user.rank = updatedPlayer.rank;
-        findAndDestroyUser(user._id);
+        findAndDestroyUser(null, user);
       }
     }
   });
@@ -442,19 +441,23 @@ module.exports = function(app) {
     return false;
   };
 
-  var findAndDestroyUser = function(userId) {
-    var user = state.users[userId];
+  var findAndDestroyUser = function(userId, userToBeDestroyed, options) {
+    var user = userToBeDestroyed || state.users[userId];
     if (!user) return;
-    if (user.socket) {
-      user.socket.disconnect();
+    if (!options || options.disconnect) {
+      if (user.socket) {
+        user.socket.disconnect();
+      }
     }
     removeFromQueue(user);
     // Maybe i need to call delete on the socket as well? who knows
     delete(state.users[user._id]);
 
     app.store.destroy(user.sid, function(err) {
-      // Do something
-      console.log(err);
+      if (err) {
+        console.log('Error destroying ' + userId, err);
+        // Do something
+      }
     });
   };
 
