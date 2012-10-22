@@ -1,23 +1,25 @@
-/*
- * Serve content over a socket
+/**
+ * Main logic, state handling, and socket communication happens here.
  */
-// Following http://www.danielbaulig.de/socket-ioexpress/
 
-var _ = require('underscore');
-var parseCookie = require('connect').utils.parseCookie;
-var mongoose = require('mongoose');
-var Config = require('../models/config');
-var Player = require('../models/player');
-var Server = require('../models/server');
-var Mix = require('../models/mix');
-var Counter = require('../models/counter');
-var matchmaker = require('./matchmaker');
-var dispatchListener = require('./dispatchlistener');
+var _ = require('underscore'),
+  parseCookie = require('connect').utils.parseCookie,
+  mongoose = require('mongoose'),
+  Config = require('../models/config'),
+  Player = require('../models/player'),
+  Server = require('../models/server'),
+  Counter = require('../models/counter'),
+  Mix = require('../models/mix'),
+  matchmaker = require('./matchmaker'),
+  dispatchListener = require('./dispatchlistener');
 
 module.exports = function(app) {
   var io = app.io;
 
-  // State
+  /**
+   * Initialize State
+   */
+
   var state = {
     config: {},
     users: {},
@@ -29,19 +31,35 @@ module.exports = function(app) {
 
   // Get config and list of servers, this is async but I'm gonna assume
   //  that it'll complete by the time I need the data
+
   Config.findById('newbiemix', function(err, config) {
-    if (err || !config) throw new Error('No config found!');
-    state.config = config;
+    if (err) throw new Error('No config found!');
+    if (config) return state.config = config;
+    
+    // If no config is in the DB, create one
+    console.log('No config found, inserting new one');
+    var newConfig = new Config({
+      _id: 'newbiemix'
+    });
+    newConfig.save(function(e) {
+      if (e) throw e;
+      state.config = newConfig;
+    });
   });
+
   Server.find({ isAvailable: true }, function(err, servers) {
     if (err) throw err;
     state.servers = servers;
   });
 
 
+  /**
+   * Socket.IO handlers
+   */
+
   // Express session authorization
 
-  app.io.set('authorization', function(data, fn) {
+  io.set('authorization', function(data, fn) {
     if (!data.headers.cookie) {
       data.NOT_LOGGED_IN = true;
       return fn(null, true);
@@ -193,7 +211,9 @@ module.exports = function(app) {
     });
 
 
-    // Sprite/Chat Stuff
+    /**
+     * Sprite/Chat Stuff
+     */
 
     socket.on('message', function(data) {
       if (Date.now() - socket.lastMessageAt < 100) {
@@ -225,7 +245,9 @@ module.exports = function(app) {
   });
 
 
-  // Status Updates
+  /**
+   * Status Updates
+   */
 
   setInterval(function() {
     io.sockets.emit('status:counts', {
@@ -239,7 +261,9 @@ module.exports = function(app) {
   }, 3000);
 
 
-  // Matchmaking
+  /**
+   * Matchmaking
+   */
 
   var matchMake = function() {
     var availableServers = _.where(state.servers, {isInUse: false});
@@ -330,9 +354,8 @@ module.exports = function(app) {
   };
 
 
-
   /**
-   * Dispatch Listener Events
+   * Dispatch Listener Handlers
    */
 
   dispatchListener.on('logout', function (userId) {

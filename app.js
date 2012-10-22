@@ -1,6 +1,5 @@
-
 /**
- * Module dependencies.
+ * Module Dependencies
  */
 
 var express = require('express'),
@@ -11,16 +10,18 @@ var express = require('express'),
   nib = require('nib'),
   env = require('./cfg/env'),
   port = env.port,
-  secrets = env.secrets;
-mongoose.connect(env.mongo_url);
+  secrets = env.secrets,
+  dispatchListener = require('./logic/dispatchlistener'),
+  Player = require('./models/player');
 
-var Player = require('./models/player');
-var dispatchListener = require('./logic/dispatchlistener');
+mongoose.connect(env.mongo_url);
 
 var app = module.exports = express.createServer();
 
 
-// Everyauth Configuration
+/**
+ * Everyauth Configuration
+ */
 
 everyauth.everymodule.moduleTimeout(8000); // Wait 8 seconds per step before timing out (default is 10)
 everyauth.everymodule.findUserById( function (req, userId, callback) {
@@ -116,7 +117,10 @@ everyauth.steam
   .redirectPath('/');
 // everyauth.debug = false;
 
-// Configuration
+
+/**
+ * Express Configuration
+ */
 
 function compile(str, path) {
   return stylus(str)
@@ -137,9 +141,11 @@ app.configure(function(){
   // app.store = new express.session.MemoryStore;
   var RedisStore = require('connect-redis')(express);
   app.store = new RedisStore({
-    host: '127.0.0.1',
-    port: 6379,
-    db: 1
+    prefix: 'nmsess',
+    host: env.redis_host,
+    port: env.redis_port,
+    db: env.redis_db,
+    pass: env.redis_password
   });
 
   app.use(express.cookieParser());
