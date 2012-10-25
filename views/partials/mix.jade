@@ -22,5 +22,5 @@
         p.server Server: {{mix.server.name}}
         p.date Date: {{mix.updated | date:'MMM d, y h:mm a'}}
         .input-append.connect-string
-          input(readonly, type='text', onmouseover='this.select();', value='connect {{mix.server.ip}}; password {{mix.server.password}}')
-          a.btn.btn-primary(href='steam://connect/{{mix.server.ip}}/{{mix.server.password}}') Connect to Server
+          input(readonly, type='text', onmouseover='this.select();', value='{{connectString}}', placeholder='Loading...')
+          a.btn.btn-primary(href='steam://connect/{{mix.server.ip}}:{{mix.server.port}}/{{mix.server.password}}') Connect to Server

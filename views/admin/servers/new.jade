@@ -3,22 +3,48 @@ extends ../layout
 block body
   .row
     .span12
-      h2 Add New Server
       .well.well-large
-        .row
-          .span4: strong Name
-          .span3: strong Ip:Port
-          .span2: strong Password
-          .span1: strong Available
-        .controls.controls-row
-          input#name.span4(type='text')
-          input#ip.span3(type='text')
-          input#password.span2(type='text')
-          input#is-available.span1(type='checkbox')
-        p
-          | Ip:Port MUST be numerical.
-        .row
-          .span1
+        form.form-horizontal
+          legend Add New Server
+          .control-group
+            label.control-label Name:
+            .controls
+              input#name.span4(type='text')
+          .control-group
+            label.control-label IP:Port:
+            .controls
+              input#ip.span3(type='text', placeholder='ip address')
+              | :
+              input#port.span2(type='text', placeholder='port')
+              span.help-block Must be numerical e.g. 206.253.166.149
+          .control-group
+            label.control-label Convenience IP:
+            .controls
+              input#convenience-ip(type='text')
+              span.help-block e.g. chi2.pug.na. Optional.
+          .control-group
+            label.control-label Password:
+            .controls
+              input#password.span2(type='text')
+          .control-group
+            label.control-label RCON Password:
+            .controls
+              input#rcon-password.span2(type='text')
+          .control-group
+            label.control-label Configs:
+            .controls
+              input#push-config.span2(type='text', placeholder='esea_push.cfg')
+              | &nbsp;
+              input#koth-config.span2(type='text', placeholder='esea_koth.cfg')
+              | &nbsp;
+              input#stopwatch-config.span2(type='text', placeholder='esea_stopwatch.cfg')
+              span.help-inline Leave blank for defaults.
+          .control-group
+            .controls
+              label.checkbox
+                input#is-available(type='checkbox')
+                | Server Is Available
+          .form-actions
             button#save.btn.btn-primary(type="button") Save
   script(type="text/javascript")
     $(document).ready(function() {
@@ -26,19 +52,36 @@ block body
 
         var name = $('#name').val().trim();
         var ip = $('#ip').val().trim();
+        var port = parseInt($('#port').val().trim(),10);
+        var convenienceIp = $('#convenience-ip').val().trim();
         var password = $('#password').val().trim();
+        var rconPassword = $('#rcon-password').val().trim();
+        var pushConfig = $('#push-config').val().trim();
+        var kothConfig = $('#koth-config').val().trim();
+        var stopwatchConfig = $('#stopwatch-config').val().trim();
         var isAvailable = $('#is-available').is(":checked");
+        var data = {
+          name: name,
+          ip: ip,
+          port: port,
+          password: password,
+          rconPassword: rconPassword,
+          isAvailable: isAvailable
+        };
+        if (pushConfig.length > 0 && kothConfig.length > 0 && stopwatchConfig.length > 0) {
+          data.pushConfig = pushConfig;
+          data.kothConfig = kothConfig;
+          data.stopwatchConfig = stopwatchConfig;
+        }
+        if (convenienceIp.length > 0) {
+          data.convenienceIp = convenienceIp;
+        }
 
         $.ajax({
           url: '/admin/servers',
           type: 'POST',
           contentType: 'application/json',
-          data: JSON.stringify({ server: {
-            name: name,
-            ip: ip,
-            password: password,
-            isAvailable: isAvailable
-          }})
+          data: JSON.stringify({ server: data})
         }).done(function(msg) {
           if (msg) {
             return document.location.href='/admin/servers';

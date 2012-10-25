@@ -179,6 +179,14 @@ function MixCtrl($scope, $window, $rootScope, $routeParams, $http) {
   $http.get('/api/mixes/' + $routeParams.id)
     .success(function(data, status, headers, config) {
       $scope.mix = data.mix;
+
+      var connectString = 'connect ';
+      if (data.mix.server.convenienceIp && data.mix.server.convenienceIp.length > 1) {
+        connectString += data.mix.server.convenienceIp;
+      } else {
+        connectString += data.mix.server.ip;
+      }
+      $scope.connectString = connectString + ':' + data.mix.server.port + '; password ' + data.mix.server.password;
     });
 
 }

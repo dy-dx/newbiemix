@@ -24,6 +24,8 @@ var mixSchema = new mongoose.Schema({
   server: {
     name: String,
     ip: String,
+    port: Number,
+    convenienceIp: String,
     password: String
   },
   updated: Date

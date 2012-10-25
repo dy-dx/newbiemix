@@ -13,7 +13,7 @@ block body
         - each server in servers
           .row
             .span4 #{server.name}
-            .span3 #{server.ip}
+            .span3 #{server.ip}:#{server.port}
             .span2 #{server.password}
             .span1 #{server.isAvailable}
             .span1

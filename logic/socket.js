@@ -267,9 +267,8 @@ module.exports = function(app) {
 
   var matchMake = function() {
     var availableServers = _.where(state.servers, {isInUse: false});
-    if (availableServers.length === 0) {
-      return;
-    }
+    if (availableServers.length === 0) {return false;}
+    var chosenServer = availableServers[0];
 
     var chosenPlayers = matchmaker.matchmaker(state.config, state.freequeue, state.newbiequeue, state.coachqueue);
     if (chosenPlayers === false) {
@@ -310,7 +309,12 @@ module.exports = function(app) {
     });
 
     // Set server isInUse to true
-    availableServers[0].isInUse = true;
+    chosenServer.isInUse = true;
+    // RCON to the server, do stuff
+    chosenServer.execConfig('cp_badlands', function(err) {
+      // Handle an err here
+      if (err) {console.log(err);}
+    });
 
     // Create new "mix" document, save to db
     // Get mixId
@@ -322,16 +326,14 @@ module.exports = function(app) {
         // TODO: Handle an err here
         return;
       }
-      var mixId = mixCounter.next.toString();
 
-      // I DON'T KNOW WHY I HAVE TO COPY THE SERVER OBJ
-      //  BUT IT DOESN'T WORK UNLESS I DO
-      var server = _.clone(availableServers[0]);
+      var mixId = mixCounter.next.toString();
       var newMix = new Mix({
         _id: mixId,
         redteam: redteam,
         bluteam: bluteam,
-        server: server,
+        // Clone server obj or else Mongoose complains
+        server: _.clone(chosenServer),
         updated: new Date()
       });
       newMix.save(function(err) {
@@ -339,7 +341,6 @@ module.exports = function(app) {
           console.log('Error saving mix document', err);
           // TODO: Handle an err here
         }
-
         chosenPlayers.forEach(function(player, index) {
           if (!state.users[player._id]) return;
           state.users[player._id].added = false;
@@ -410,7 +411,7 @@ module.exports = function(app) {
   });
 
   dispatchListener.on('!gameover', function (data) {
-    var server = _.find(state.servers, function(s) { return s.ip === data.ip; });
+    var server = _.find(state.servers, function(s) { return s.ip+':'+s.port === data.ip; });
     if (server) {
       server.isInUse = false;
       matchMake();
