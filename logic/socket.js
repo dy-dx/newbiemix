@@ -362,7 +362,7 @@ module.exports = function(app) {
     findAndDestroyUser(userId, userToBeDestroyed, options);
   });
 
-  dispatchListener.on('serverUpdated', function(updatedConfig) {
+  dispatchListener.on('configUpdated', function(updatedConfig) {
     state.config = updatedConfig;
   });
 
