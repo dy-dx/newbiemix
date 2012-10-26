@@ -212,8 +212,119 @@ module.exports = function(app) {
 
 
     /**
+     * Mix-specific events - Chat, Reporting
+     */
+
+    socket.on('report:player', function(data, callback) {
+      if (!data || !data.mixId || !data.reporteeId) { return callback(false); }
+      // Add report to database, then send a message to chat notifying how many reports left are needed.
+      Mix.addReport(user._id, data, function(err, reportee) {
+        if (err) {
+          if (err.message == 'Already reported') { return callback('You have already reported this player.'); }
+          if (err.message == 'Reporter not found') { return callback('You are not authorized to report this player'); }
+          console.log(err);
+          return callback(false);
+        }
+        // Change this back to 3! or put it in a cfg
+        var REPORT_LIMIT = 1;
+
+        if (reportee.reports.length < REPORT_LIMIT) {
+          io.sockets.in(data.mixId).emit('system:message', user.name + ' has reported ' +
+              reportee.team + ' ' + reportee.class + ' ' + reportee.name + '. ' +
+              REPORT_LIMIT - reportee.reports.length + ' more reports needed to request a sub.' );
+        } else if (reportee.reports.length == REPORT_LIMIT) {
+          io.sockets.in(data.mixId).emit('system:message', 'A sub for ' + reportee.team +
+              ' ' + reportee.class + ' ' + reportee.name + ' has been requested.');
+          requestSubstitute(data.mixId, reportee);
+        }
+
+        return callback(true);
+      });
+    });
+
+    socket.on('chat:message', function(message) {
+      if (currentroom) {
+        io.sockets.in(currentroom).emit('chat:message', {name: user.name, message: message});
+      }
+    });
+
+    socket.on('substitute:join', function(data, callback) {
+      // user wants to join data.mixId and replace data.reporteeId.
+      if (!data || !data.mixId || !data.reporteeId) { return callback(false); }
+      if (user._id == data.reporteeId) { return callback('You may not substitute yourself.'); }
+      if (user.added) { return callback('You are already added up!'); }
+      // Need to replace this with some kind of atomic operation
+      //  so two users can't fill the sub request at the same time.
+      Mix.findById(data.mixId, function(err, mix) {
+        if (err || !mix) { return callback(false); }
+        // Check if reportee exists or has already been substituted
+        var reportee = ( _.find(mix.bluteam, function(p) { return p._id === data.reporteeId}) ||
+                         _.find(mix.redteam, function(p) { return p._id === data.reporteeId}) );
+        if (!reportee || reportee.isSubstituted) { return callback(false); }
+
+        reportee.isSubstituted = true;
+        // Push new player into mix document and save
+        // This is too messy. fix this.
+        var newPlayer = _.clone(user);
+        delete newPlayer.socket;
+        delete newPlayer.sid;
+        delete newPlayer.permissions;
+        delete newPlayer.classes;
+        newPlayer.class = reportee.class;
+        newPlayer.team = reportee.team;
+        newPlayer.isASubstitute = true;
+        mix[reportee.team+'team'].push(newPlayer);
+        mix.save(function(err) {
+          if (err) {
+            // do something
+            console.log(err);
+            return callback(false);
+          }
+          // Ok, the user is going to sub. Do the stuff that follows.
+          // All this code is duplicated. You MUST refactor this
+
+          user.added = false;
+          // Notify everyone that the sub request is fulfilled
+          io.sockets.emit('notification:subnotneeded', {
+            mixId: data.mixId,
+            reporteeId: data.reporteeId
+          });
+          // Increment player's playCount, in state and in DB
+          user.playCount = user.playCount + 1 || 1;
+          Player.update({_id:user._id}, {$inc:{playCount:1}}, {safe:true}, function(err) {
+            if (err) {
+              // do something
+              console.log(err);
+            }
+          });
+          // Notify players in mix that a sub joined
+          io.sockets.in(data.mixId).emit('mix:newplayer', {
+            newPlayer: newPlayer,
+            reporteeId: reportee._id
+          });
+          // Send user to the mix page
+          io.sockets.socket(user.socket.id).emit('match:join', {
+            mixId: data.mixId
+          });
+          
+        });
+      });
+    });
+
+
+    /**
      * Sprite/Chat Stuff
      */
+
+    // Room Subscription
+    var currentroom;
+    socket.on('subscribe:room', function (room) {
+      if (currentroom) {
+        socket.leave(currentroom);
+      }
+      socket.join(room);
+      currentroom = room;
+    });
 
     socket.on('message', function(data) {
       if (Date.now() - socket.lastMessageAt < 100) {
@@ -328,13 +439,15 @@ module.exports = function(app) {
       }
 
       var mixId = mixCounter.next.toString();
+      chosenServer.currentMixId = mixId;
       var newMix = new Mix({
         _id: mixId,
         redteam: redteam,
         bluteam: bluteam,
         // Clone server obj or else Mongoose complains
         server: _.clone(chosenServer),
-        updated: new Date()
+        updated: new Date(),
+        isActive: true
       });
       newMix.save(function(err) {
         if (err) {
@@ -342,8 +455,18 @@ module.exports = function(app) {
           // TODO: Handle an err here
         }
         chosenPlayers.forEach(function(player, index) {
-          if (!state.users[player._id]) return;
-          state.users[player._id].added = false;
+          var user = state.users[player._id];
+          if (!user) return;
+          user.added = false;
+          // Increment player's playCount, in state and in DB
+          user.playCount = user.playCount + 1 || 1;
+          Player.update({_id:player._id}, {$inc:{playCount:1}}, {safe:true}, function(err) {
+            if (err) {
+              // do something
+              console.log(err);
+            }
+          });
+          // Notify the player that he got picked
           io.sockets.socket(player.socket.id).emit('match:join', {
             mixId: mixId
           });
@@ -352,6 +475,18 @@ module.exports = function(app) {
 
     }); // End Counter.findOneAndUpdate()
 
+  };
+
+  /**
+   * Global Notifications
+   */
+
+  requestSubstitute = function(mixId, reportee) {
+    io.sockets.emit('notification:needsub', {
+      mixId: mixId,
+      reporteeId: reportee._id,
+      classNeeded: reportee.class
+    });
   };
 
 
@@ -400,7 +535,7 @@ module.exports = function(app) {
   });
 
   dispatchListener.on('playerUpdated', function (updatedPlayer) {
-    if (updatedPlayer && updatedPlayer._id) {
+    if (updatedPlayer && updateserverdPlayer._id) {
       // THIS IS SO HACKY UGGHGHGHH
       var user = state.users[updatedPlayer._id];
       if (user) {
@@ -414,6 +549,20 @@ module.exports = function(app) {
     var server = _.find(state.servers, function(s) { return s.ip+':'+s.port === data.ip; });
     if (server) {
       server.isInUse = false;
+      if (server.currentMixId) {
+        Mix.updateScores(server.currentMixId, data.bluScore, data.redScore, function(err, winners) {
+          if (err) { return console.log(err); }
+          if (!winners || winners == 'tie') { return; }
+          // For each winner, increment winCount in state and in DB
+          winners.forEach(function(w, index) {
+            var user = state.users[w._id];
+            if (user) {user.winCount = user.winCount + 1 || 1;}
+            Player.incrementWinCount(w._id, function(err) {
+              if (err) { return console.log(err); }
+            });
+          });
+        });
+      }
       matchMake();
     }
   });

@@ -10,6 +10,9 @@ var playerSchema = new mongoose.Schema({
   updated: Date,
   country: { type: String, default: 'i dunno' }, // Some players don't have this
   rank: { type: String, required: true },
+  playCount: { type: Number, default: 0 },
+  reportCount: { type: Number, default: 0},
+  winCount: { type: Number, default: 0},
   classes: { type: Array, default: [
       {name: 'Scout', id: 'Scout', selected: false},
       {name: 'Pocket', id: 'Pocket', selected: false},
@@ -161,6 +164,12 @@ playerSchema.statics.getSteamApiInfo = function(steamid, callback) {
     return callback(null, body.response.players[0]);
   }); // End request
 
+};
+
+playerSchema.statics.incrementWinCount = function(steamid, callback) {
+  Player.update({_id:steamid}, {$inc:{winCount:1}}, {safe:true}, function(err) {
+    if (err) {return callback(err);}
+  });
 };
 
 

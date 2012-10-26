@@ -34,6 +34,9 @@ a
     padding 8px 14px
     left 470px
     margin-left -47px
+#notification
+  text-align center
+
 .caret
   margin 13px 0 0 1px !important
 .add-up
@@ -69,7 +72,7 @@ a
 .classpicker
   height 82px
   user-select none
-.class-icon
+.classpicker-icon
   width 64px
   height 64px
   margin 6px 2px
@@ -77,14 +80,14 @@ a
   color white
   font 12px "Lucida Grande", Helvetica, Arial, sans-serif
   text-shadow 1px 1px #000000
-
-.class-icon
   border-radius 2px
-.class-icon-deselected
+.classpicker-icon-deselected
   opacity 0.4
 
 #profile-dropdown
   margin-top 10px
+  img
+    border-radius 3px
 .steamlogin
   margin-top 3px
 
@@ -127,56 +130,108 @@ a
     background-color white
     margin 0 12px
     // padding 0 5px 8px 5px
-    border 1px solid gray
+    border 2px solid #333
     border-radius 6px
     list-style none
     display inline
   li:first-child
     text-align center
     border-top 0
+    border-radius 4px 4px 0 0
+    font-size 24px
+    line-height 32px
+    color white
   li
     width 350px
-    padding 5px 6px
     position relative
-    border-top 1px solid gray
+    border-top 2px solid #333
+    line-height 18px
+  li a
+    display block
+    padding 5px 6px
+  li a:hover
+    background-color #EEE
+  li:hover button
+    display block
+  li:last-child a
+    border-radius 0 0 6px 6px
+  img
+    margin-top 2px
+    border-radius 3px
+    overflow hidden
   div
     display inline-block
-  img
-    border-radius 4px
-    overflow hidden
-.bluteam
-  float left
-  img
-    border 3px solid #79B3D2
-.redteam
-  float right
-  img
-    border 3px solid #D06553
+  .label
+    margin-bottom -2px
+.red-header
+  background-color #D06553
+.blu-header
+  background-color #79B3D2
 .me
-  border 3px solid #FFD633 !important
+  // border 3px solid #FFD633
+.class-icon
+  position absolute
+  right 2px
 .name
-  max-width 269px
+  // display inline-block
+  max-width 220px
   padding 0 5px
   white-space nowrap
   overflow hidden
   text-overflow ellipsis
-.name:hover
-  position relative
-  overflow visible
-  z-index 100
-  span
-    background-color white
-.rank
+.summary
+  padding 0 5px
+  font-size 12px
+.report
   position absolute
-  right 6px
-  top 14px
-  // margin-top 11px
+  display none
+  left 61%
+  top 50%
+  margin-top -20px
+
+
 .connect-string
   input[readonly]
-    width 400px
+    width 360px
     background-color white
     outline none
     box-shadow none
+
+
+.chatbox
+  margin-top 15px
+  height 220px
+  font normal 1em sans-serif
+  border 1px solid #ccc
+  text-align left
+  padding 10px 15px 15px 15px 
+  border-radius 5px
+.chat-input input, .chatlog
+  border none
+  box-shadow inset 0 0 2px #777
+  border-radius 5px
+.chat-input
+  padding-right 10px
+  input
+    width 100%
+    padding 5px
+.chatlog
+  height 70%
+  overflow-x hidden
+  overflow-y auto
+  background-color white
+  margin 5px 0
+  padding-top 6px
+  padding-bottom 6px
+  p
+    font-size 0.9em
+    color #000a68
+    padding 3px 9px
+    margin 0
+.chat-time
+  color #666
+  font-size 0.8em
+  padding-right 6px
 
 
 .sprite

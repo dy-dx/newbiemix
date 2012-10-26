@@ -11,7 +11,7 @@ block body
             span dbl click to select
             span least favorite&rarr;
           ul.nav.classpicker(ui-sortable, ui-jq='popover', data-trigger='manual', data-placement='bottom', data-content='You must select at least one class before you can add up!', ng-model='classes')
-            li.class-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'class-icon-deselected':!c.selected}", ng-dblclick='selectClass(c)', ng-style='getClassIcon(c)')
+            li.classpicker-icon(ng-cloak, ng-repeat='c in classes', ng-class="{'classpicker-icon-deselected':!c.selected}", ng-dblclick='selectClass(c)', ng-style='getClassIcon(c)')
               | {{c.name}}
           .add-up(ng-cloak)
             button.btn(ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
@@ -43,6 +43,10 @@ block body
   #loading(ng-show='loading')
     .alert
       | Loading...
+  #notification(ng-cloak, ng-show='notifications.length')
+    .alert(ng-repeat='notification in notifications')
+      button(type='button', class='close', data-dismiss='alert') ×
+      a(ng-click="joinAsSub(notification)", href='javascript:void(0)') {{notification.message}}
   .ui-modal.fade(ng-model="disconnected")
     .modal-header
       button(class='close', type='button', data-dismiss='modal') ×

@@ -17,8 +17,8 @@ var server = net.createServer(function (socket) {
       var scores = tokens[2].split(':');
       dispatchListener.emit('!gameover', {
         ip: tokens[0],
-        bluscore: scores[0],
-        redscore: scores.slice(-1)[0].trim()
+        bluScore: scores[0],
+        redScore: scores.slice(-1)[0].trim()
       });
 
       return socket.end();

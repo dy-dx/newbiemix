@@ -38,7 +38,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
   };
 
   $scope.getClassIcon = function(c) {
-     return { 'background-image': 'url("/img/icons/' + c.id + '.jpg")' };
+     return { 'background-image': 'url("/img/picker/' + c.id + '.jpg")' };
   };
 
   $scope.addOrRemove = function() {
@@ -108,6 +108,34 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
     $scope.queueOrd = getOrdinal(queuePos+1);
   });
 
+
+  /**
+   * Notifications/Substitutes
+   */
+
+  $scope.notifications = [];
+  socket.on('notification:needsub', function(data) {
+    $scope.notifications.push({
+      mixId: data.mixId,
+      reporteeId: data.reporteeId,
+      message: 'A '+data.classNeeded+' sub is needed. Click here to play.'
+    });
+  });
+  socket.on('notification:subnotneeded', function(data) {
+    // Find notification and delete it
+    $scope.notifications.forEach(function(n, index) {
+      if (data.mixId === n.mixId && data.reporteeId === n.reporteeId) {
+        $scope.notifications.splice(index,1);
+        return;
+      }
+    });
+  });
+  $scope.joinAsSub = function(notification) {
+    socket.emit('substitute:join', {mixId: notification.mixId, reporteeId: notification.reporteeId}, function(response) {
+      alert(response);
+    });
+  };
+
   // Socket.io
 
   socket.on('disconnect', function() {
@@ -155,7 +183,9 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
 }
 
 
-function PageCtrl($scope, $window, $rootScope, $routeParams, $http) {
+function PageCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
+  socket.emit('subscribe:room', 'lobby');
+
   if (!$rootScope.pages) {
     $http.get('/api/pages')
     .success(function(data, status, headers, config) {
@@ -172,9 +202,10 @@ function PageCtrl($scope, $window, $rootScope, $routeParams, $http) {
 }
 
 
-function MixCtrl($scope, $window, $rootScope, $routeParams, $http) {
+function MixCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
 
   $scope.mix = {};
+  socket.emit('subscribe:room', $routeParams.id);
 
   $http.get('/api/mixes/' + $routeParams.id)
     .success(function(data, status, headers, config) {
@@ -189,4 +220,63 @@ function MixCtrl($scope, $window, $rootScope, $routeParams, $http) {
       $scope.connectString = connectString + ':' + data.mix.server.port + '; password ' + data.mix.server.password;
     });
 
+  $scope.reportModal = function(player) {
+    $scope.reportDialog = true;
+    $scope.reportee = player;
+  };
+
+  $scope.sendReport = function() {
+    if (!$scope.reportee) return false;
+    var data = {
+      mixId: $routeParams.id,
+      reporteeId: $scope.reportee._id
+    };
+    socket.emit('report:player', data, function(response) {
+      if (response === false) { return systemMessage('Something went wrong.'); }
+      if (response === true) { return; }
+      systemMessage(response);
+    });
+  };
+
+  $scope.submitMessage = function() {
+    if (this.chatMessage) {
+      socket.emit('chat:message', this.chatMessage);
+      this.chatMessage = '';
+    }
+  };
+  // Substitute arrived
+  socket.on('mix:newplayer', function(data) {
+    $scope.mix[data.newPlayer.team+'team'].push(data.newPlayer);
+    // Find oldplayer, set isSubstituted = true. Stupid hack.
+    _.find($scope.mix[data.newPlayer.team+'team'], function(p) {return p._id == data.reporteeId;}).isSubstituted = true;
+  });
+
+  $scope.messages = [];
+  $scope.chatMessage = '';
+  socket.on('system:message', function(message) {
+    systemMessage(message);
+  });
+  socket.on('chat:message', function(data) {
+    appendMessage(data.name, data.message);
+  });
+
+
+  // Helpers
+  var systemMessage = function(message) {
+    $scope.messages.push({message: 'System: ' + message});
+  };
+  var appendMessage = function(name, message) {
+    $scope.messages.push({
+      time: timestamp(),
+      name: name+': ',
+      message: message
+    });
+  };
+  var timestamp = function() {
+    var d = new Date();
+    return d.getHours() + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+  };
+  var pad2 = function(number) {
+    return (number < 10 ? '0' : '') + number;
+  };
 }
