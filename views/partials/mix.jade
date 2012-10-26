@@ -6,7 +6,7 @@
           button(class='close', type='button', data-dismiss='modal') ×
           h2 Reporting Player
         .modal-body
-          p Are you sure you want to report {{reportedPlayer.name}}?
+          p Are you sure you want to report {{reportee.name}}?
         .modal-footer
           button(class='btn', data-dismiss='modal') Cancel
           button(class='btn btn-primary', data-dismiss='modal', ng-click="sendReport()") Report
@@ -14,7 +14,7 @@
         .mix-teams.clearfix
           ul.bluteam.pull-left
             li.blu-header: strong BLU
-            li(ng-repeat='player in mix.bluteam')
+            li(ng-repeat="player in mix.players | filter:{team:'blu'}")
               a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
                 img.pull-left(ng-src="{{player.avatar}}", ng-class="{me:id==player._id}")
                 img.pull-right(ng-src="/img/icon/{{player.class}}.png")
@@ -29,7 +29,7 @@
               button.report.btn.btn-large.btn-danger(ng-click="reportModal(player)") Report
           ul.redteam.pull-right
             li.red-header: strong RED
-            li(ng-repeat='player in mix.redteam', ng-class="{reported:player.isSubstituted}")
+            li(ng-repeat="player in mix.players | filter:{team:'red'}")
               a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
                 img.pull-left(ng-src="{{player.avatar}}", ng-class="{me:id==player._id}")
                 img.class-icon(ng-src="/img/icon/{{player.class}}.png")

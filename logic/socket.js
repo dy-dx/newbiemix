@@ -225,8 +225,8 @@ module.exports = function(app) {
           console.log(err);
           return callback(false);
         }
-        // Change this back to 3! or put it in a cfg
-        var REPORT_LIMIT = 1;
+       
+        var REPORT_LIMIT = state.config.reportLimit || 3;
 
         if (reportee.reports.length < REPORT_LIMIT) {
           io.sockets.in(data.mixId).emit('system:message', user.name + ' has reported ' +
@@ -251,64 +251,62 @@ module.exports = function(app) {
     socket.on('substitute:join', function(data, callback) {
       // user wants to join data.mixId and replace data.reporteeId.
       if (!data || !data.mixId || !data.reporteeId) { return callback(false); }
-      if (user._id == data.reporteeId) { return callback('You may not substitute yourself.'); }
       if (user.added) { return callback('You are already added up!'); }
-      // Need to replace this with some kind of atomic operation
-      //  so two users can't fill the sub request at the same time.
+
       Mix.findById(data.mixId, function(err, mix) {
         if (err || !mix) { return callback(false); }
         // Check if reportee exists or has already been substituted
-        var reportee = ( _.find(mix.bluteam, function(p) { return p._id === data.reporteeId}) ||
-                         _.find(mix.redteam, function(p) { return p._id === data.reporteeId}) );
+        var reportee = _.find(mix.players, function(p) { return p._id === data.reporteeId; });
         if (!reportee || reportee.isSubstituted) { return callback(false); }
+        // Check if prospective substitute is already in the mix
+        if (_.find(mix.players, function(p) { return p._id === user._id; })) {
+          return callback('You may not sub in a mix you are already in.');
+        }
 
-        reportee.isSubstituted = true;
-        // Push new player into mix document and save
-        // This is too messy. fix this.
-        var newPlayer = _.clone(user);
-        delete newPlayer.socket;
-        delete newPlayer.sid;
-        delete newPlayer.permissions;
-        delete newPlayer.classes;
-        newPlayer.class = reportee.class;
-        newPlayer.team = reportee.team;
-        newPlayer.isASubstitute = true;
-        mix[reportee.team+'team'].push(newPlayer);
-        mix.save(function(err) {
-          if (err) {
+
+        // Attempt to atomically set reportee (embedded doc) to isSubstituted.
+        //  If successful, then continue on with the process. isSubstituted serves as a
+        //  lock to prevent 2 players from fulfilling the sub request at the same time.
+        Mix.update( {_id: mix._id, 'players._id': reportee._id, 'players.isSubstituted': false},
+                    {$set:{'players.$.isSubstituted': true}}, function(err, numUpdated) {
+          if (err || numUpdated === 0) {
+            if (err) console.log(err);
             // do something
-            console.log(err);
             return callback(false);
           }
-          // Ok, the user is going to sub. Do the stuff that follows.
-          // All this code is duplicated. You MUST refactor this
-
-          user.added = false;
-          // Notify everyone that the sub request is fulfilled
-          io.sockets.emit('notification:subnotneeded', {
-            mixId: data.mixId,
-            reporteeId: data.reporteeId
-          });
-          // Increment player's playCount, in state and in DB
-          user.playCount = user.playCount + 1 || 1;
-          Player.update({_id:user._id}, {$inc:{playCount:1}}, {safe:true}, function(err) {
+          // Push new player into mix document.
+          // This is too messy. fix this.
+          var newPlayer = _.clone(user);
+          delete newPlayer.socket;
+          delete newPlayer.sid;
+          delete newPlayer.permissions;
+          delete newPlayer.classes;
+          newPlayer.class = reportee.class;
+          newPlayer.team = reportee.team;
+          newPlayer.isASubstitute = true;
+          Mix.update( {_id: mix._id}, {$push: {players: newPlayer}}, function(err) {
             if (err) {
-              // do something
-              console.log(err);
+              // There is not much I can do about an err here. Shit.
             }
-          });
-          // Notify players in mix that a sub joined
-          io.sockets.in(data.mixId).emit('mix:newplayer', {
-            newPlayer: newPlayer,
-            reporteeId: reportee._id
-          });
-          // Send user to the mix page
-          io.sockets.socket(user.socket.id).emit('match:join', {
-            mixId: data.mixId
-          });
-          
-        });
-      });
+
+            // Ok, so the user is finally going to sub. Now send all the events.
+
+            // Notify everyone that the sub request is fulfilled
+            io.sockets.emit('notification:subfulfilled', {
+              mixId: data.mixId,
+              reporteeId: data.reporteeId
+            });
+
+            // Notify players in mix that a sub joined
+            io.sockets.in(data.mixId).emit('mix:newplayer', {
+              newPlayer: newPlayer,
+              reporteeId: reportee._id
+            });
+
+            sendToMatch(user, data.mixId);
+          }); // End Mix.update($push)
+        }); // End Mix.update($set)
+      }); // End Mix.findById()
     });
 
 
@@ -397,8 +395,10 @@ module.exports = function(app) {
 
       // Push to team
       if (redteam.length > bluteam.length) {
+        coach.team = 'blu';
         bluteam.push(coach);
       } else {
+        coach.team = 'red';
         redteam.push(coach);
       }
     });
@@ -413,8 +413,10 @@ module.exports = function(app) {
       var limit = 1;
       if (c === 'Scout') limit = 2;
       if ( _.where(redteam, {class: c}).length === limit ) {
+        newbie.team = 'blu';
         bluteam.push(newbie);
       } else {
+        newbie.team = 'red';
         redteam.push(newbie);
       }
     });
@@ -442,8 +444,7 @@ module.exports = function(app) {
       chosenServer.currentMixId = mixId;
       var newMix = new Mix({
         _id: mixId,
-        redteam: redteam,
-        bluteam: bluteam,
+        players: bluteam.concat(redteam),
         // Clone server obj or else Mongoose complains
         server: _.clone(chosenServer),
         updated: new Date(),
@@ -457,19 +458,7 @@ module.exports = function(app) {
         chosenPlayers.forEach(function(player, index) {
           var user = state.users[player._id];
           if (!user) return;
-          user.added = false;
-          // Increment player's playCount, in state and in DB
-          user.playCount = user.playCount + 1 || 1;
-          Player.update({_id:player._id}, {$inc:{playCount:1}}, {safe:true}, function(err) {
-            if (err) {
-              // do something
-              console.log(err);
-            }
-          });
-          // Notify the player that he got picked
-          io.sockets.socket(player.socket.id).emit('match:join', {
-            mixId: mixId
-          });
+          sendToMatch(user, mixId);
         });
       });
 
@@ -589,6 +578,22 @@ module.exports = function(app) {
       }
     }
     return false;
+  };
+
+  var sendToMatch = function(user, mixId) {
+    removeFromQueue(user);
+    // Increment player's playCount, in state and in DB
+    user.playCount = user.playCount + 1 || 1;
+    Player.update({_id:user._id}, {$inc:{playCount:1}}, {safe:true}, function(err) {
+      if (err) {
+        // I don't care too much about an err here.
+        console.log(err);
+      }
+    });
+    // Notify player that he got picked
+    io.sockets.socket(user.socket.id).emit('match:join', {
+      mixId: mixId
+    });
   };
 
   var findAndDestroyUser = function(userId, userToBeDestroyed, options) {

@@ -121,18 +121,18 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
       message: 'A '+data.classNeeded+' sub is needed. Click here to play.'
     });
   });
-  socket.on('notification:subnotneeded', function(data) {
+  socket.on('notification:subfulfilled', function(data) {
     // Find notification and delete it
-    $scope.notifications.forEach(function(n, index) {
+    for (var i=0, n; n=$scope.notifications[i]; i++) {
       if (data.mixId === n.mixId && data.reporteeId === n.reporteeId) {
-        $scope.notifications.splice(index,1);
+        $scope.notifications.splice(i,1);
         return;
       }
-    });
+    }
   });
   $scope.joinAsSub = function(notification) {
     socket.emit('substitute:join', {mixId: notification.mixId, reporteeId: notification.reporteeId}, function(response) {
-      alert(response);
+      // alert(response);
     });
   };
 
@@ -246,9 +246,9 @@ function MixCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
   };
   // Substitute arrived
   socket.on('mix:newplayer', function(data) {
-    $scope.mix[data.newPlayer.team+'team'].push(data.newPlayer);
+    $scope.mix.players.push(data.newPlayer);
     // Find oldplayer, set isSubstituted = true. Stupid hack.
-    _.find($scope.mix[data.newPlayer.team+'team'], function(p) {return p._id == data.reporteeId;}).isSubstituted = true;
+    _.find($scope.mix.players, function(p) {return p._id == data.reporteeId;}).isSubstituted = true;
   });
 
   $scope.messages = [];

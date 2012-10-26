@@ -8,37 +8,20 @@ var mixSchema = new mongoose.Schema({
   _id: { type: String, required: true },
   bluScore: Number,
   redScore: Number,
-  redteam: [{
-    _id: String,
-    name: String,
+  players: [{
+    _id: { type: String, required: true},
+    name: { type: String, required: true},
     avatar: String,
-    class: String,
+    class: { type: String, required: true},
     rank: String,
-    team: { type: String, default: 'red' },
+    team: { type: String, required: true}, // 'red' or 'blu'
     playCount: Number,
     // 'reportCount' is a global count of mixes the player got reported in
     reportCount: Number,
     // 'reports' is an array of players requesting a sub for this player
     reports: [String],
-    // 'isSubstituted' describes whether or not the player has been subbed out
-    //  This doesn't belong here. remove it.
-    isSubstituted: { type: Boolean, default: false },
-    isASubstitute: { type: Boolean, default: false }
-  }],
-  bluteam: [{
-    _id: String,
-    name: String,
-    avatar: String,
-    class: String,
-    rank: String,
-    team: { type: String, default: 'blu' },
-    playCount: Number,
-    // 'reportCount' is a global count of mixes the player got reported in
-    reportCount: Number,
-    // 'reports' is an array of players requesting a sub for this player
-    reports: [String],
-    // 'isSubstituted' describes whether or not the player has been subbed out
-    //  This doesn't belong here. remove it.
+    // 'isSubstituted' serves as a lock to prevent 2 players from
+    //  fulfilling a sub request at the same time.
     isSubstituted: { type: Boolean, default: false },
     isASubstitute: { type: Boolean, default: false }
   }],
@@ -58,13 +41,16 @@ mixSchema.statics.updateScores = function(mixId, bluscore, redscore, callback) {
   Mix.findByIdAndUpdate(mixId, {bluScore: bluscore, redScore: redscore, isActive: false}, function(err, mix) {
     if (err) {return callback(err);}
     if (!mix) {return callback(new Error('No mix found'));}
+    // Figure out which team won and return those players.
+    var winners = [];
     if (bluscore > redscore) {
-      return callback(null, mix.bluteam);
+      winners = _.filter(mix.players, function(p) { return p.team === 'blu'; });
     } else if (redscore > bluscore) {
-      return callback(null, mix.redteam);
+      winners = _.filter(mix.players, function(p) { return p.team === 'red'; });
     } else {
       return callback(null, 'tie');
     }
+    return callback(null, winners);
   });
 };
 
@@ -72,12 +58,10 @@ mixSchema.statics.addReport = function(reporterId, data, callback) {
   Mix.findById(data.mixId, function(err, mix) {
     if (err || !mix) { return callback(new Error('No mix found')); }
     // Check if reportee exists
-    var reportee = ( _.find(mix.bluteam, function(p) { return p._id === data.reporteeId}) ||
-                     _.find(mix.redteam, function(p) { return p._id === data.reporteeId}) );
+    var reportee = _.find(mix.players, function(p) { return p._id === data.reporteeId; });
     if (!reportee) { return callback(new Error('Reportee not found')); }
     // Check if reporter exists
-    var reporter = ( _.find(mix.bluteam, function(p) { return p._id === reporterId}) ||
-                     _.find(mix.redteam, function(p) { return p._id === reporterId}) );
+    var reporter = _.find(mix.players, function(p) { return p._id === reporterId; });
     if (!reporter) { return callback(new Error('Reporter not found')); }
     // Check if reporter already reported reportee
     if ( _.contains(reportee.reports, reporterId) ) { return callback(new Error('Already reported')); }
