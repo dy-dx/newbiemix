@@ -10,11 +10,14 @@
         .modal-footer
           button(class='btn', data-dismiss='modal') Cancel
           button(class='btn btn-primary', data-dismiss='modal', ng-click="sendReport()") Report
-      .mix-info
+      .back-button
+        a(href='/')
+          img(src='/img/back-button.png')
+      .mix-overview
         .mix-teams.clearfix
-          ul.bluteam.pull-left
-            li.blu-header: strong BLU
-            li(ng-repeat="player in mix.players | filter:{team:'blu'}")
+          ul(ng-repeat='team in teams')
+            li: strong {{team | uppercase}}
+            li(ng-repeat="player in mix.players | filter:{team:team}")
               a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
                 img.pull-left(ng-src="{{player.avatar}}", ng-class="{me:id==player._id}")
                 img.pull-right(ng-src="/img/icon/{{player.class}}.png")
@@ -25,35 +28,25 @@
                 .label.label-important(ui-if="player.isSubstituted") Reported
                 br
                 .summary
-                  span {{player.playCount}} played, {{player.reportCount}} reported
+                  span {{player.playCount}} mixes, {{player.reportCount}} leaves
               button.report.btn.btn-large.btn-danger(ng-click="reportModal(player)") Report
-          ul.redteam.pull-right
-            li.red-header: strong RED
-            li(ng-repeat="player in mix.players | filter:{team:'red'}")
-              a(href='http://steamcommunity.com/profiles/{{player._id}}', target='_blank')
-                img.pull-left(ng-src="{{player.avatar}}", ng-class="{me:id==player._id}")
-                img.class-icon(ng-src="/img/icon/{{player.class}}.png")
-                .name
-                  span {{player.name}}
-                //- stupid hack
-                .label.label-inverse(ui-if="player.rank=='coach'&&!player.isSubstituted") Coach
-                .label.label-important(ui-if="player.isSubstituted") Reported
-                br
-                .summary
-                  span {{player.playCount}} played, {{player.reportCount}} reported
-              button.report.btn.btn-large.btn-danger(ng-click="reportModal(player)") Report
-        p.server Server: {{mix.server.name}}
-        p.date Date: {{mix.updated | date:'MMM d, y h:mm a'}}
         .input-append.connect-string
           input(readonly, type='text', onmouseover='this.select();', value='{{connectString}}', placeholder='Loading...')
           a.btn.btn-primary(href='steam://connect/{{mix.server.ip}}:{{mix.server.port}}/{{mix.server.password}}') Connect to Server
-      form.chatbox(ng-submit='submitMessage()')
-        span.chatbox-header Chat
-        .chatlog
-          p(ng-repeat='message in messages')
-            span.chat-time {{message.time}}
-            span.chat-name {{message.name}}
-            span.chat-message {{message.message}}
-        .chat-input
-          input(type='text', ng-model='chatMessage', autocomplete='off')
-          input(type='submit', style='visibility: hidden;')
+        .mix-lower
+          .mix-info
+            dl.dl-horizontal
+              dt Server
+              dd {{mix.server.name}}
+              dt Date
+              dd {{mix.updated | date:'MMM d, y h:mm a'}}
+          form.chatbox(ng-submit='submitMessage()')
+            //- span.chatbox-header Chat
+            .chatlog
+              p(ng-repeat='message in messages')
+                span.chat-time {{message.time}}
+                span.chat-name {{message.name}}
+                span.chat-message {{message.message}}
+            .chat-input
+              input(type='text', ng-model='chatMessage', autocomplete='off')
+              //- input(type='submit', style='visibility: hidden;')

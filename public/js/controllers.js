@@ -220,6 +220,9 @@ function MixCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
       $scope.connectString = connectString + ':' + data.mix.server.port + '; password ' + data.mix.server.password;
     });
 
+  // Stupid hack
+  $scope.teams = ['blu', 'red'];
+
   $scope.reportModal = function(player) {
     $scope.reportDialog = true;
     $scope.reportee = player;
