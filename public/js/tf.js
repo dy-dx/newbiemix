@@ -349,6 +349,14 @@ var tf = {};
         tf.Player.prototype[data.method].apply(player, arguments);
       }
     });
+    // This is a stupid hack
+    ws.on('roomchange', function() {
+      _.each(players, function(player, id) {
+        if (id === me.id) return;
+        player.remove();
+        delete players[id];
+      });
+    });
 
 
     ////// Helper Methods //////

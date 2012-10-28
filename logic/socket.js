@@ -318,7 +318,7 @@ module.exports = function(app) {
     var currentroom;
     socket.on('subscribe:room', function (room) {
       if (currentroom) {
-        socket.leave(currentroom);
+        leaveRoom(socket, currentroom);
       }
       socket.join(room);
       currentroom = room;
@@ -330,13 +330,14 @@ module.exports = function(app) {
       }
       socket.lastMessageAt = Date.now();
       data.id = socket.id;
-      return socket.json.broadcast.send(data);
+      // Only send sprite messages to users in the same room
+      return socket.json.broadcast.to(currentroom).send(data);
     });
     
     socket.on('disconnect', function() {
       console.log('A socket disconnected: ' + user.name);
       // The sprite stuff
-      socket.json.broadcast.send({
+      socket.json.broadcast.to(currentroom).send({
         id: socket.id,
         disconnect: true
       });
@@ -593,6 +594,17 @@ module.exports = function(app) {
     // Notify player that he got picked
     io.sockets.socket(user.socket.id).emit('match:join', {
       mixId: mixId
+    });
+  };
+
+  var leaveRoom = function(socket, room) {
+    socket.leave(room);
+    // 'roomchange' tells tf.js to delete all other sprites.
+    socket.emit('roomchange');
+    // tell everyone in the old room to delete the sprite.
+    io.sockets.json.in(room).send({
+      id: socket.id,
+      disconnect: true
     });
   };
 
