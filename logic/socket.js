@@ -525,7 +525,7 @@ module.exports = function(app) {
   });
 
   dispatchListener.on('playerUpdated', function (updatedPlayer) {
-    if (updatedPlayer && updateserverdPlayer._id) {
+    if (updatedPlayer && updatedPlayer._id) {
       // THIS IS SO HACKY UGGHGHGHH
       var user = state.users[updatedPlayer._id];
       if (user) {
