@@ -128,7 +128,7 @@ module.exports = function(app) {
       queuepos: queuePos
     });
 
-    console.log('A socket connected: ' + user.name);
+    // console.log('A socket connected: ' + user.name);
 
 
     /**
@@ -335,7 +335,7 @@ module.exports = function(app) {
     });
     
     socket.on('disconnect', function() {
-      console.log('A socket disconnected: ' + user.name);
+      // console.log('A socket disconnected: ' + user.name);
       // The sprite stuff
       socket.json.broadcast.to(currentroom).send({
         id: socket.id,
