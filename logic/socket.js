@@ -122,7 +122,9 @@ module.exports = function(app) {
     // Send initialization info
     socket.emit('state:init', {
       id: user._id,
+      name: user.name,
       rank: user.rank,
+      avatar: user.avatar,
       classes: user.classes,
       added: user.added,
       queuepos: queuePos
@@ -613,7 +615,10 @@ module.exports = function(app) {
 
   var findAndDestroyUser = function(userId, userToBeDestroyed, options) {
     var user = userToBeDestroyed || state.users[userId];
-    if (!user) return;
+    if (!user) {
+      console.log('You\'re trying to findAndDestroy a user that I can\'t find!')
+      return;
+    }
     if (!options || options.disconnect) {
       if (user.socket) {
         user.socket.disconnect();

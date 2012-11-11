@@ -64,7 +64,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
         }
         updateAddedState(true);
         $scope.queuePos = response;
-        $rootScope.statusCounts[$scope.rank] += 1;
+        $rootScope.statusCounts[$scope.myRank] += 1;
       });
     }
   };
@@ -75,7 +75,9 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
 
   socket.on('state:init', function(data) {
     $rootScope.id = data.id;
-    $scope.rank = data.rank;
+    $scope.myAvatar = data.avatar;
+    $scope.myName = data.name;
+    $scope.myRank = data.rank;
     $scope.classes = data.classes;
     $scope.disconnected = false;
     updateAddedState(data.added);

@@ -1,5 +1,5 @@
 [ng-cloak],.ng-cloak{display:none}
-body{background-image:url("/img/background.png");background-repeat:no-repeat;background-position:center top}
+body{background:#a1b9d6 url("/img/background.png") no-repeat;background-position:center top}
 #container{position:relative;margin:0 auto;width:940px;height:100%;-webkit-backface-visibility:hidden}
 #loading{position:fixed;z-index:9999;width:100%;}
 #loading .alert{position:relative;display:inline;padding:8px 14px;left:470px;margin-left:-47px}

@@ -16,12 +16,12 @@ block body
           .add-up(ng-cloak)
             button.btn(ng-style="buttonStyle", class='{{buttonClass}}', ng-click='addOrRemove()') {{buttonText}}
             br
-            span(ng-show='added') You are {{queueOrd}} in the {{rank}} queue.
+            span(ng-show='added') You are {{queueOrd}} in the {{myRank}} queue.
           .btn-group.pull-right
             a#profile-dropdown.btn.dropdown-toggle(data-toggle='dropdown', href='#')
-              span#profilename
-                img(src='#{user.avatar}')
-                | &nbsp;#{user.name} (#{user.rank})
+              span#profilename(ng-cloak)
+                img(src='{{myAvatar}}')
+                | &nbsp;{{myName}} ({{myRank}})
               span.caret
             ul.dropdown-menu
               li
