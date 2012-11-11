@@ -14,7 +14,7 @@ var mixSchema = new mongoose.Schema({
     avatar: String,
     class: { type: String, required: true},
     rank: String,
-    team: { type: String, required: true}, // 'red' or 'blu'
+    team: { type: String, default: 'blu'}, // 'red' or 'blu'
     playCount: Number,
     // 'reportCount' is a global count of mixes the player got reported in
     reportCount: Number,

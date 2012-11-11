@@ -409,7 +409,10 @@ module.exports = function(app) {
       removeFromQueue(newbie, 'newbiequeue');
 
       // Push to team
-      if (redteam.length === 6) return bluteam.push(newbie);
+      if (redteam.length === 6) {
+        newbie.team = 'blu';
+        return bluteam.push(newbie);
+      }
       var c = newbie.class;
       var limit = 1;
       if (c === 'Scout') limit = 2;
