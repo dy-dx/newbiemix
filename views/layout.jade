@@ -31,6 +31,8 @@ html(lang="en", ng-app="myApp")
     script( src='/js/vendor/underscore-min.js' )
 
     //- Load tf.js before angular or else sockets don't work???
+    script.
+      WSPORT="#{port}";
     script( src='/js/tf.js' )
     //- script( src='/js/vendor/angular.js' )
     script( src='//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js' )

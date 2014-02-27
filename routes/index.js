@@ -13,7 +13,7 @@ module.exports = function(app) {
     }
   });
 
-  app.get('/', index);
+  app.get('/', index(app));
   app.get('/partials/:name', partials);
 
 
@@ -21,12 +21,14 @@ module.exports = function(app) {
   require('./admin')(app);
 
 
-  app.get('*', index);
+  app.get('*', index(app));
 };
 
 
-var index = function(req, res) {
-  res.render('index');
+var index = function (app) {
+  return function(req, res) {
+    res.render('index', {port: app.address().port});
+  };
 };
 
 var partials = function (req, res) {

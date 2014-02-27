@@ -317,11 +317,11 @@ var tf = {};
 
     ////// Networking //////
     var players = tf.players = {};
-    // var ws = tf.ws = io.connect(null, {
-    //   // 'port': '#socketIoPort#'
-    //   'port': 8003
-    // });
-    var ws = tf.ws = io.connect();
+    // var ws = tf.ws = io.connect();
+    var ws = tf.ws = io.connect(null, {
+      // 'port': '#socketIoPort#'
+      'port': WSPORT
+    });
     ws.on('connect', function() {
       me.id = ws.socket.sessionid;
       tf.players[me.id] = me;
