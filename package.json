@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "engines": {
-    "node": "0.10.x"
+    "node": "0.12.x"
   },
   "dependencies": {
     "connect": "1.x",
@@ -12,15 +12,15 @@
     "express": "~2.5.11",
     "jade": "~1.10.0",
     "mongoose": "3.8.29",
-    "nib": "0.8.x",
+    "nib": "~1.0.4",
     "rcon": "git+https://github.com/dy-dx/node-rcon.git",
-    "request": ">= 2.x.x",
+    "request": "~2.56.0",
     "socket.io": "~0.9.16",
-    "stylus": ">= 0.0.1",
+    "stylus": "~0.51.1",
     "underscore": "~1.6.0",
-    "xml2js": "*"
+    "xml2js": "~0.4.8"
   },
   "optionalDependencies": {
-    "hiredis": "~0.1.16"
+    "hiredis": "~0.4.0"
   }
 }
