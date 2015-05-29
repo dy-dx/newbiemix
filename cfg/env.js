@@ -6,6 +6,7 @@ var env = module.exports = {
   redis_port: parseInt(process.env.REDIS_PORT, 10) || 6379,
   redis_db: parseInt(process.env.REDIS_DB, 10) || 1,
   redis_password: process.env.REDIS_PASSWORD,
+  session_prefix: (process.env.SESSION_PREFIX) || 'nmsess:',
   dispatch_port: parseInt(process.env.DISPATCH_PORT, 10) || 27030
 };
 

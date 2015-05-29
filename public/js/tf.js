@@ -323,7 +323,8 @@ var tf = {};
       'port': WSPORT
     });
     ws.on('connect', function() {
-      me.id = ws.socket.sessionid;
+      // me.id = ws.socket.sessionid;
+      me.id = ws.id;
       tf.players[me.id] = me;
       (function heartbeat() {
         tf.send({ obj: me }, true);

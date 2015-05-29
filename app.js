@@ -3,20 +3,26 @@
  */
 
 var express = require('express'),
+  app = express(),
+  server = module.exports = require('http').createServer(app),
   util = require('util'),
+  favicon = require('serve-favicon'),
+  session = require('express-session'),
+  bodyParser = require('body-parser'),
+  cookieParser = require('cookie-parser'),
+  methodOverride = require('method-override'),
+  errorHandler = require('errorhandler'),
   mongoose = require('mongoose'),
   everyauth = require('everyauth'),
   stylus = require('stylus'),
   nib = require('nib'),
   env = require('./cfg/env'),
-  port = env.port,
   secrets = env.secrets,
   dispatchListener = require('./logic/dispatchlistener'),
   Player = require('./models/player');
 
 mongoose.connect(env.mongo_url);
 
-var app = module.exports = express.createServer();
 
 
 /**
@@ -129,66 +135,50 @@ function compile(str, path) {
     .use(nib());
 }
 
-app.configure(function(){
-  app.use(express.favicon('public/img/favicon.ico'));
-  // app.use(express.logger('dev'));
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
-  app.set('view options', {
-    layout: false
-  });
 
-  // app.store = new express.session.MemoryStore;
-  var RedisStore = require('connect-redis')(express);
-  app.store = new RedisStore({
-    prefix: 'nmsess',
-    host: env.redis_host,
-    port: env.redis_port,
-    db: env.redis_db,
-    pass: env.redis_password
-  });
-
-  app.use(express.cookieParser());
-  app.use(express.session({
-    secret: secrets.session,
-    store: app.store
-  }));
-
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(everyauth.middleware());
-  app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }));
-  app.use(express.static(__dirname + '/public'));
-  app.use(app.router);
+app.use(favicon('public/img/favicon.ico'));
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+app.set('view options', {
+  layout: false
 });
 
-app.configure('development', function(){
-  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+// app.store = new session.MemoryStore;
+var RedisStore = require('connect-redis')(session);
+app.store = new RedisStore({
+  prefix: env.session_prefix,
+  host: env.redis_host,
+  port: env.redis_port,
+  db: env.redis_db,
+  pass: env.redis_password
 });
 
-app.configure('production', function(){
-  app.use(express.errorHandler());
-});
+// app.use(cookieParser());
+app.use(session({
+  secret: secrets.session,
+  store: app.store
+}));
+
+app.use(bodyParser());
+app.use(methodOverride());
+app.use(everyauth.middleware());
+app.use(stylus.middleware({ src: __dirname + '/public', compile: compile }));
+app.use(express.static(__dirname + '/public'));
 
 // Routes
 require('./routes')(app);
 
-// Hook Socket.io into Express
-var parseCookie = require('connect').utils.parseCookie;
-app.io = require('socket.io').listen(app);
-app.io.enable('browser client minification');
-app.io.enable('browser client etag');
-app.io.enable('browser client gzip');
-app.io.set('log level', 1);
-app.io.set('transports', [
-  'websocket',
-  'flashsocket',
-  'htmlfile',
-  'xhr-polling',
-  'jsonp-polling'
-]);
-var socket = require('./logic/socket')(app);
+if (app.get('env') !== 'production') {
+  app.use(errorHandler({ log: true }));
+} else {
+  // fixme: use something else
+  app.use(errorHandler({ log: true }));
+}
 
-app.listen(port, function(){
-  console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+// Hook Socket.io into Express
+app.io = require('socket.io')(server);
+require('./logic/socket')(app);
+
+server.listen(env.port, function(){
+  console.log("Express server listening on port %d in %s mode", env.port, app.settings.env);
 });

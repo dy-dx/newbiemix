@@ -27,22 +27,22 @@ module.exports = function(app) {
 
   app.post('/admin/pages', isAdmin, pageCreate);
   app.put('/admin/pages/:id', isAdmin, pageUpdate);
-  app.del('/admin/pages/:id', isAdmin, pageDestroy);
+  app.delete('/admin/pages/:id', isAdmin, pageDestroy);
 
 
   app.get('/admin/servers', isAdmin, serverIndex);
   app.get('/admin/servers/new', isAdmin, serverNew);
   app.get('/admin/servers/:id/edit', isAdmin, serverEdit);
-  
+
   app.post('/admin/servers', isAdmin, serverCreate);
   app.put('/admin/servers/:id', isAdmin, serverUpdate);
-  app.del('/admin/servers/:id', isAdmin, serverDestroy);
+  app.delete('/admin/servers/:id', isAdmin, serverDestroy);
 
 
   app.get('/admin/players', isAdmin, playerIndex);
   app.get('/admin/players/new', isAdmin, playerNew);
   app.get('/admin/players/:id/edit', isAdmin, playerEdit);
-  
+
   app.put('/admin/players/:id', isAdmin, playerUpdate);
   app.post('/admin/players', isAdmin, playerCreate);
 

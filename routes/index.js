@@ -2,18 +2,18 @@
  * /routes/index.js
  */
 
+env = require('../cfg/env');
+
 module.exports = function(app) {
 
-  app.dynamicHelpers({
-    loggedIn: function(req, res) {
-      return req.loggedIn;
-    },
-    user: function(req, res) {
-      return req.user;
-    }
+  app.use(function (req, res, next) {
+    res.locals.loggedIn = req.loggedIn;
+    res.locals.user = req.user;
+    res.locals.port = env.port;
+    next();
   });
 
-  app.get('/', index(app));
+  app.get('/', index);
   app.get('/partials/:name', partials);
 
 
@@ -21,14 +21,12 @@ module.exports = function(app) {
   require('./admin')(app);
 
 
-  app.get('*', index(app));
+  app.get('*', index);
 };
 
 
-var index = function (app) {
-  return function(req, res) {
-    res.render('index', {port: app.address().port});
-  };
+var index = function (req, res) {
+  res.render('index');
 };
 
 var partials = function (req, res) {

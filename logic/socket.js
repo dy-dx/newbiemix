@@ -3,8 +3,10 @@
  */
 
 var _ = require('underscore'),
-  parseCookie = require('connect').utils.parseCookie,
+  cookie = require('cookie'),
+  cookieParser = require('cookie-parser'),
   mongoose = require('mongoose'),
+  env = require('../cfg/env'),
   Config = require('../models/config'),
   Player = require('../models/player'),
   Server = require('../models/server'),
@@ -35,7 +37,7 @@ module.exports = function(app) {
   Config.findById('newbiemix', function(err, config) {
     if (err) throw new Error('No config found!');
     if (config) return state.config = config;
-    
+
     // If no config is in the DB, create one
     console.log('No config found, inserting new one');
     var newConfig = new Config({
@@ -59,17 +61,19 @@ module.exports = function(app) {
 
   // Express session authorization
 
-  io.set('authorization', function(data, fn) {
+  io.use(function (socket, next) {
+    var data = socket.request;
     if (!data.headers.cookie) {
       data.NOT_LOGGED_IN = true;
-      return fn(null, true);
+      return next();
     }
-    var cookies = parseCookie(data.headers.cookie);
+    var cookies = cookie.parse(data.headers.cookie);
+    cookies = cookieParser.signedCookies(cookies, env.secrets.session);
     var sid = cookies['connect.sid'];
-    app.store.get(sid, function(err, sess){
+    app.store.get(sid, function (err, sess) {
       if (err || !sess || !sess.auth || !sess.auth.loggedIn) {
         data.NOT_LOGGED_IN = true;
-        return fn(null, true);
+        return next();
       }
       data.session = sess;
       data.session.sid = sid;
@@ -79,21 +83,21 @@ module.exports = function(app) {
         state.users[sess.auth.steam.user._id].socket.disconnect();
       }
 
-      fn(null, true);
+      return next();
     });
   });
 
   io.sockets.on('connection', function(socket) {
 
     // Don't take input from not_logged_in sockets
-    if (socket.handshake.NOT_LOGGED_IN) return;
+    if (socket.request.NOT_LOGGED_IN) return;
 
     /**
      * Initialization/Reconnection
      */
 
-    var user = socket.handshake.session.auth.steam.user;
-    user.sid = socket.handshake.session.sid;
+    var user = socket.request.session.auth.steam.user;
+    user.sid = socket.request.session.sid;
     var queuePos;
     // If existing user in state, then take that one instead
     //  and clear timeout if that exists
@@ -118,7 +122,7 @@ module.exports = function(app) {
     }
     user.socket = socket;
     user.status = 'active';
-    
+
     // Send initialization info
     socket.emit('state:init', {
       id: user._id,
@@ -147,7 +151,7 @@ module.exports = function(app) {
           selectedClasses.push(c.id);
         }
       });
-      
+
       // Create costs array for the Hungarian Algorithm
       // Doesn't this belong in matchmaker.js instead?
       var costs = [3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000,3000000];
@@ -227,7 +231,7 @@ module.exports = function(app) {
           console.log(err);
           return callback(false);
         }
-       
+
         var REPORT_LIMIT = state.config.reportLimit || 3;
 
         if (reportee.reports.length < REPORT_LIMIT) {
@@ -335,7 +339,7 @@ module.exports = function(app) {
       // Only send sprite messages to users in the same room
       return socket.json.broadcast.to(currentroom).send(data);
     });
-    
+
     socket.on('disconnect', function() {
       // console.log('A socket disconnected: ' + user.name);
       // The sprite stuff
@@ -407,7 +411,7 @@ module.exports = function(app) {
     });
 
     newbies.forEach(function(newbie, index) {
-      
+
       removeFromQueue(newbie, 'newbiequeue');
 
       // Push to team
@@ -519,7 +523,7 @@ module.exports = function(app) {
       matchMake();
     }
   });
-  
+
   dispatchListener.on('serverDestroyed', function (destroyedServer) {
     for (var i=0, len=state.servers.length; i<len; i++) {
       if ( state.servers[i]._id.equals(destroyedServer._id)) {
