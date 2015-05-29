@@ -317,11 +317,8 @@ var tf = {};
 
     ////// Networking //////
     var players = tf.players = {};
-    // var ws = tf.ws = io.connect();
-    var ws = tf.ws = io.connect(null, {
-      // 'port': '#socketIoPort#'
-      'port': WSPORT
-    });
+    var wsUri = window.location.hostname + ':' + WSPORT;
+    var ws = tf.ws = io.connect(wsUri);
     ws.on('connect', function() {
       // me.id = ws.socket.sessionid;
       me.id = ws.id;
@@ -407,7 +404,7 @@ var tf = {};
 
     tf.send = function(data, heartbeat) {
       if (!ws) return;
-      
+
       var now = Date.now();
       if (now - ws.lastSentAt < 10) return; //throw Error('throttled');
       ws.lastSentAt = now;
