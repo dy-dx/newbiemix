@@ -199,6 +199,7 @@ function PageCtrl($scope, $window, $rootScope, $routeParams, $http, socket) {
       $rootScope.page = data.page;
     });
   $scope.isActive = function(index) {
+    if (!$rootScope.page || !$rootScope.pages) return false;
     return $rootScope.page.slug === $rootScope.pages[index].slug;
   };
 }

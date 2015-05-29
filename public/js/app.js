@@ -2,7 +2,7 @@
 
 
 // Declare app level module which depends on filters, and services
-var app = angular.module('myApp', ['myApp.services', 'ui']).
+var app = angular.module('myApp', ['ngRoute', 'ngSanitize', 'myApp.services', 'ui.modal', 'ui.sortable', 'ui.jq']).
   config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
     $routeProvider
       .when('/', {

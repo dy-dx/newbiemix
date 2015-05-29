@@ -30,7 +30,8 @@
 
   var modifiers = ['alt', 'ctrl', 'meta', 'shift'];
 
-  var keyevent = $.browser.mozilla || $.browser.opera ? 'keypress' : 'keydown';
+  // var keyevent = $.browser.mozilla || $.browser.opera ? 'keypress' : 'keydown';
+  var keyevent = 'keydown';
   // var keyevent = 'keyup';
   $.event.special.keylisten = {
     setup: function(data, namespaces) {
@@ -56,7 +57,7 @@
 
       e.type = 'keylisten';
       e.keyName = mods + key;
-      $.event.handle.apply(this, arguments);
+      $.event.dispatch.apply(this, arguments);
     }
   };
 })(jQuery, window);

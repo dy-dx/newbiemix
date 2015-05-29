@@ -23,11 +23,11 @@ html(lang="en", ng-app="myApp")
     #container
       block body
     script( src='/socket.io/socket.io.js' )
-    //- script( src='/js/vendor/jquery-1.8.2.min.js' )
-    script( src='//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js' )
+    //- script( src='/js/vendor/jquery-2.1.4.min.js' )
+    script( src='//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js' )
 
     //- This is a custom build of jquery-ui, ONLY for sortable lists
-    script( src='/js/vendor/jquery-ui-1.9.0.custom.js' )
+    script( src='/js/vendor/jquery-ui-1.11.4.custom.js' )
     script( src='/js/vendor/underscore-min.js' )
 
     //- Load tf.js before angular or else sockets don't work???
@@ -35,10 +35,15 @@ html(lang="en", ng-app="myApp")
       WSPORT="#{port}";
     script( src='/js/tf.js' )
     //- script( src='/js/vendor/angular.js' )
-    script( src='//ajax.googleapis.com/ajax/libs/angularjs/1.0.2/angular.min.js' )
+    //- script( src='/js/vendor/angular-route.js' )
+    script( src='//ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular.js' )
+    script( src='//ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular-route.js' )
+    script( src='//ajax.googleapis.com/ajax/libs/angularjs/1.2.28/angular-sanitize.js' )
 
     //- Angular-UI for jQuery Passthrough (sortable)
-    script( src='/js/vendor/angular-ui.js' )
+    script( src='/js/vendor/ui-sortable-0.13.3.js' )
+    script( src='/js/vendor/ui-jq-0.2.3.js' )
+    script( src='/js/vendor/ui-modal.js' )
     script( src='/js/vendor/bootstrap.js' )
     script( src='/js/vendor/jquery.keylisten.js' )
     script( src='/js/vendor/jquery.transform.light.js' )
