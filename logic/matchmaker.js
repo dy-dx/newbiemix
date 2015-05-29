@@ -86,7 +86,7 @@ exports.matchmaker = function(config, freeQueue, newbies, coaches) {
     //  classes[index] is his assigned class,
     //  queue[value].costs[index] is his cost to play that class
     queue[value].class = classes[index];
-    
+
     // Maybe use this to report what classes are missing
     if ( queue[value].costs[index] == 3000000 ) {
       noSolution = true;

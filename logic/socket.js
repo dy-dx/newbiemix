@@ -237,7 +237,7 @@ module.exports = function(app) {
         if (reportee.reports.length < REPORT_LIMIT) {
           io.sockets.in(data.mixId).emit('system:message', user.name + ' has reported ' +
               reportee.team + ' ' + reportee.class + ' ' + reportee.name + '. ' +
-              REPORT_LIMIT - reportee.reports.length + ' more reports needed to request a sub.' );
+              (REPORT_LIMIT - reportee.reports.length) + ' more reports needed to request a sub.' );
         } else if (reportee.reports.length == REPORT_LIMIT) {
           io.sockets.in(data.mixId).emit('system:message', 'A sub for ' + reportee.team +
               ' ' + reportee.class + ' ' + reportee.name + ' has been requested.');
@@ -436,7 +436,7 @@ module.exports = function(app) {
     // RCON to the server, do stuff
     chosenServer.execConfig('cp_badlands', function(err) {
       // Handle an err here
-      if (err) {console.log(err);}
+      if (err) {console.log("err execing config:", err);}
     });
 
     // Create new "mix" document, save to db
@@ -601,7 +601,7 @@ module.exports = function(app) {
       }
     });
     // Notify player that he got picked
-    io.sockets.socket(user.socket.id).emit('match:join', {
+    io.sockets.connected[user.socket.id].emit('match:join', {
       mixId: mixId
     });
   };

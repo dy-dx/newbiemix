@@ -42,14 +42,14 @@ serverSchema.methods.execConfig = function(map, callback) {
         break;
     }
   }
-  
+
   var rcon = new Rcon();
   rcon.connect(this.ip, this.port, this.rconPassword, onConnected);
 
   function onConnected(err, response) {
-    // if(err){console.error(err);callback(err);return;}
     if (err) {
-      console.log(err);
+      console.error(err);
+      callback(err);
       return;
     }
 

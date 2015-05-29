@@ -24,8 +24,8 @@
                 .name
                   span {{player.name}}
                 //- stupid hack
-                .label.label-inverse(ui-if="player.rank=='coach'&&!player.isSubstituted") Coach
-                .label.label-important(ui-if="player.isSubstituted") Reported
+                .label.label-inverse(ng-if="player.rank=='coach'&&!player.isSubstituted") Coach
+                .label.label-important(ng-if="player.isSubstituted") Reported
                 br
                 .summary
                   span {{player.playCount}} mixes, {{player.reportCount}} leaves
