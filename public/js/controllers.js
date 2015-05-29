@@ -7,6 +7,7 @@ function MainCtrl($scope, $location, $window, $rootScope, socket) {
   //   return $location.path();
   // };
   $scope.loading = false;
+  $rootScope.statusCounts = {newbie: 0, coach: 0, users: 0, servers: 0, freeservers: 0};
   $rootScope.$on('$routeChangeStart', function() {
     $scope.loading = true;
   });
